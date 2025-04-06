@@ -1,0 +1,159 @@
+# Linpack
+
+# Parallel vs Distributed Computing
+
+# Peak Performance
+
+# CPU Time
+
+# ILP Techniques
+
+# Pipeline exec and speedup
+
+# 5-step MIPS pipeline
+
+# Superscalar pipelines
+
+# Pipelining limits
+
+# O-o-o exec Requirements
+
+# Modern ILP
+
+# VLIW
+
+# Vector Instructions
+
+# SIMD
+
+# SMT
+
+# Solutions to Memory Latency
+
+# Cache
+
+# Cache Associativity
+
+# Cache Misses
+
+# Improve Cache Performance
+
+# Computational Intensity
+
+# Matrix Optimization
+
+# Parallel Algorithms
+
+# Static vs Dynamic Task Decomposition
+
+# Decomposition Techniques
+
+# Speedup + Efficiency
+
+# Amdahls Law
+
+# Weak vs Strong Scaling
+
+# 2 Types of HW platforms
+
+# 2 Types of SW platforms
+
+# Pthreads creation
+
+# Loop parallelism
+
+# Pthread management
+
+# Threads shared data
+
+# Pthread synchronization
+
+# Cache coherence
+
+# Write-back vs write-through cache
+
+# Snooping
+
+# Cache coherence protocols
+
+# True vs false sharing
+
+# Coherence limit
+
+# Memory consistency
+
+# Problems with sequential consistency
+
+# Profiling vs Tracing
+
+# ompP overhead categories
+
+# OMP optimization techniques
+
+# Avoid thread creation overhead
+
+# NUMA optimization
+
+# Network Performance Properties
+Diameter, Latency, Bandwidth, Bisection Bandwidth
+
+# Topologies
+Linear Array, Torus/Ring, 2D Mesh, 2D Torus, Bus, Crossbar (fully connected), (Dragonfly), Hypercube, Trees, Fat Trees
+
+# MPI messaging protocols, avoid serialization
+
+# MPI Process mapping
+
+# MPI Resource contention
+
+# MPI Overlapping comm and comp
+
+# MPI One-sided Advantages
+
+# MPI RMA window objects
+
+# MPI RMA Ordering, Atomicity, Completion
+
+# Latency and BW Model
+
+# LogP Model
+
+# PGAS
+
+# UPC execution model
+
+# UPC shared scalars vs arrays
+
+# UPC Worksharing
+
+# UPC layouts
+
+# UPC pointers
+
+# Heterogenous Architectures
+
+# OMP Offloading
+
+# OMP inital threads and contention groups
+
+# OMP Offloading Hierarchy
+
+# DDE
+
+# Controlling allocation and copy Ops?
+
+# Target directive clauses?
+
+# CUDA
+
+# CUDA host/device comm
+
+# GPU Registers and Memory
+
+# GPU Hierarchy
+
+# Cuda Hierarchy
+
+# Cuda Dev Toolchain
+
+# CUDA Comm and Sync

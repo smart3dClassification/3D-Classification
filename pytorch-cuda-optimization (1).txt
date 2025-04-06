@@ -1,0 +1,748 @@
+# Linpack 
+Benchmark program, solves dense system of linear functions using LU factorization
+
+# Distributed Computing
+losely coupled systems, geographically distributed, indep systems providing service
+
+# Parallel Computing
+tightly coupled, components used at sam time to achieve specific goal, nodes often replicas in close proximity
+
+# Peak Performance
+theoretical max HW can deliver
+
+# CPU Time
+sec/progr = instr/progr * cycles/instr * sec/cycle
+
+# ILP Techniques
+- Pipelining: Overlapping individual parts of instr exec
+- Superscalar Execution: do multiple things at same time
+- Out-of-order Execution: re-order Ops on-the-fly
+- VLIW: compiler specifies what runs in parallel
+
+# Pipeline exec and speedup
+througput/bw: loads/h (limit: slowest ppl stage)  latency: time/load
+max speedup: #/pipeline stages
+
+# 5-step MIPS pipeline
+Instr Fetch, Instr Decode/Reg Fetch, Exec Addr Calc, Mem Acc, Write Back
+
+# Superscalar pipelines
+=> 1 instr/cycle (CPI<1)
+
+# Pipelining limits
+Overhead: Prevents arbitrary division of work
+Hazards: Prevents next instr exec designated clock cycle
+    -Structural Hazards: use HW to do 2 diff things at once
+    -Data Hazards: Instr depends on res of prev instr still in PL
+    -Control Hazards: delays between instr fetch and decisions about changes in progr flow
+Superscalaraty increases occurence of hazards
+
+# O-o-o Exec Requirements
+O-o-o exec => O-o-o compl => re-ordering required (illusion programmer)
+
+# Modern ILP
+Dynamically scheduled, O-o-o exec
+Grab instrs, det deps, elim deps, throw exec unit, each one move forward as deps resolved (looks like seq exec)
+Hazards: Speculative Exec (!waste time+power)
+Huge Complexity
+
+# VLIW
+EPIC, each instr expl coding multiple Ops
+compiler schedules parall exec, extract parall + avoid hazards
+
+# Vector Instructions
+programmer needs to id parall, HW does not re-extr parall
+
+# SIMD 
+Scalar vs SIMD
+SIMD vs Vector: Vectors longer, gather-scatter support, higher bw-to-mem
+DLP: parall from Ops on independent data items
+
+# SMT
+Combining ILP and TLP
+many chip resources underutilized
+add support for simult exec multiple indep threads
+Hyperthreading
+
+# Solutions to Memory Latency
+- elim mem Ops by saving vals in small, fast mem (cache)  -> !temporal locality (reusing item prev acc)
+- use better bw by getting chunk of mem, saving in cache, using whole chunck  -> !spatial locality (acc things nearby prev acc)
+- use better bw by allowing processor to isssue multi reads to mem system at once  -> !concurrency in instr stream
+- Overlap Comp & Mem Ops  -> Prefetching
+
+# Cache
+fast, exp mem keeps copies of data in main mem
+cache hit(in-cache mem acc) vs miss(non-cached)
+organized in cache line(64 bytes/chache blocks)
+cache line length: # bytes loaded in 1 entry
+
+# Cache Associativity
+Direct-mapped: only 1 address line in given range in cache
+Fully-associative: line can be stored anywhere
+n-way set-associative: det set for line => n slots availabe in set to store
+
+# Cache Misses
+Compulsory: 1st acc to a block
+Capacity: cannot contains all blocks acc by program
+Conflict(collsion): multi mem locations mapped to same cache location
+Coherence(Invalidation): other process updates mem
+
+# Improve Cache Performance
+Blocking/Tiling:
+    - Divides matrices into smaller blocks b×b
+    - exploits cache locality by reusing data within blocks
+use divide&conquer to define problem fitting in Register/L1/L2-cache
+
+# Computational Intensity
+m: # mem elem moved between mem types
+tm: time/slow mem Op
+f: # arithm Ops
+tf: time/arithm Op
+min possible t: f*tf
+
+q = f/m: avg # flops/slow mem acc    (! algo efficiency)
+a = tm/tf (! machine efficiency)
+
+# Matrix Optimization
+q ≈ b ≤ √(Mfast/3)
+block size limited by cache size
+
+# Parallel Algorithms
+units of work, mapping to processors, distr intermediate res, sync processors
+
+# Static vs Dynamic Task Decomposition
+Static: tasks + deps known before exec
+Dynamic: exec of tasks may generate new tasks on-the-fly
+
+# Decomposition Techniques
+Data, Recursive, Functional, Exploratory, Speculative
+
+# Speedup + Efficiency
+Sn = T1/Tn
+En = Sn/n
+
+# Amdahl's Law
+E drops with incr # processors  <=  limited by serial part
+Sn= T1/Tn=(Ts+Tp)/(Ts+Tp/n)
+
+# Weak Scaling
+Incr problem size according to # processors, hope for constant exec t
+
+# Strong Scaling
+Keep problem size constant with incr # processors, hope for linear decrease in exec t (!harder)
+
+# 2 Types of HW platforms
+Shared Memory: main mem physically shared (CPU can dir read/write all of it)
+    - NUMA: some parts of mem accessible faster
+Distributed Memory: main mem phys distr (CPU can acc part of it)
+
+# 2 Types of SW platforms
+Threading:                            Message Passing:
+- program consists of threads         - program consists of processes
+- Ts have private/shared data         - ps have private data
+- comm implicirtl, r/w shared vars    - expl comm sending messages
+
+# Pthreads creation
+cobegin/coend, fork/join, future, int pthread_create()
+
+# Loop parallelism
+thread creation overhead significant => coarse grained usually better performance
+
+# Pthread management
+pthread_yield(), pthread_exit(pass val to joining t), pthread_join(* thread, **result), pthread_self(), pthread_detach()
+
+# Threads shared data
+obj alloc on heap can be shared
+vars on stack private
+
+# Pthread synchronization
+pthread_barrier_t, _init, _wait
+pthread_mutex_t, _lock, _unlock, _destroy
+
+# Cache coherence
+replicas of data items in multiple locations
+
+# Write-through cache
+each update to cache updates orig mem location
+
+# Write-back cache
+orig mem location updated eventually, when cache line evicted(order of flushing)
+
+# Snooping
+- cache controllers can snoop on bus, all transactions visible
+- controllers take action if transaction relevant: invalidate, update, supply value
+- cache line state info (valid, dirty)
+- coherence maintained at cache block granularity
+
+# Cache coherence protocols
+- Invalidation: invalidate replicas
+- Update
+
+# True sharing
+- frequent ws to shared var creates bottleneck => coherence traffic
+- local copies (per process/thread) where possible
+
+# False sharing
+- coherence maintained by lines, not individual words
+- 2 vars on same line possible
+- allocate data used by each processor contig, avoid interleaving in mem
+
+# Coherence limit
+- defines properties for accesses to single location only
+- ordering between multi locations?
+
+# Memory Consistency
+multiprocessor seq consistent if res of any exec == if
+- Ops of all processors exec seq order
+- Ops of each processor appear in seq in program order
+
+# Problems with sequential consistency
+- limits reordering
+- => complex implementations
+- current HW does not offer SC
+=> TSO, synchronizing instructions
+
+# Profiling
+- Summary statistics of performance measurements
+- performance bottlenecks
+
+# Tracing
+- when and where events took place along a global timeline
+- dynamic program behaviour
+
+# ompP overhead categories
+Imbalance, Synchronization, Limited Parall, Thread management
+
+# OMP optimization techniques
+avoid thr managment oh, limiting parall, nowait, combining parall regions, collapsing loops, avoid load imbalances, avoid false sharing
+
+# Avoid thread creation overhead
+if, num_threads
+
+# NUMA optimization
+- virtual mem mapped to physical mem in pages
+- mem page allocation det by first touch policy
+- init of data structures reflect later acc pattern
+
+# check how cuda works underneath python abstraction
+
+//initial;; thread
+pragma omp parallel // creates team of threads, exec redundantly
+    if (scalar_expression)
+    private (list)
+    shared (list)
+    default (shared | none) //all threads execute code, # threads can change
+    firstprivate (list)
+    lastprivate (list)
+    reduction (operator: list)
+    copyin (list)
+    num_threads
+// implicit barrier
+//team threads => thread pool
+
+# Interesting worksharing constructs
+pragma omp for | sections | single
+
+# Interesting thread synchronization constructs
+pragma omp barrier | critical | atomic | omp_(nest_)lock_t lock, omp_init_lock, omp_destroy_lock, omp_set_lock
+
+# Interesting runtime library function
+omp_get_num_threads(), omp_get_thread_num(), omp_set_num_threads, omp_set_dynamic(false), omp_set_nested(false)
+
+
+pragma omp for [clause ...]
+    // Loop iterations are divided into pieces of size chunk and
+    // dynamically scheduled among the threads; when a thread
+    // finishes one chunk, it is dynamically assigned another
+    private (list)
+    firstprivate (list)
+    lastprivate (list)
+    shared (list)
+    schedule (type [,chunk]): static (rr), dynamic -> rt, guided, auto (compiler/rt), runtime (defer) 
+    ordered
+    reduction (operator: list)
+    collapse (n)
+    // Threads do not synchronize at the end of the parallel loop.
+    nowait
+
+<for_loop> //no barrier, work distr to threads
+//implicit barrier
+
+pragma omp sections [clause ...]
+    private (list)
+    firstprivate (list)
+    lastprivate (list)
+    reduction (operator: list)
+    nowait
+
+{
+ #pragma omp section
+ <structured_block> // exec by 1 thread
+ #pragma omp section
+ <structured_block> // exec by same/other thread
+ ...
+//implicit barrier
+}
+
+pragma omp single [clause ...] //exec by 1 thread
+    private (list)
+    firstprivate (list)
+    copyprivate (operator: list) // Broadcasts values from single thread to all threads
+    nowait
+//implicit barrier
+
+#pragma omp master [clauses] //only master thread exec
+{
+// block
+}//no implicit barrier
+
+# Tasks how fine grained can we even go in pytorch
+// units of work(nested), exec indep, data dependences w other tasks
+// parall of irreg problems (unbounded loops, rec algos)
+// threads dynamically assigned, exec sequentially
+// deferred or undeferred
+// initial, implicit, explicit
+pragma omp task
+    default (shared|none)
+    private (list)
+    firstprivate (list)
+    shared (list)
+    if (shallow) //false => undeferred task
+    final (deep) //true => final task
+    mergeable
+    depend (dependence-type:list) //only sibling tasks, fulfilled => scheduled exec
+    priority (priority-value)
+    untied //any thread can resume exec
+
+//task sync points
+barriers, taskwait(child tasks), taskgroup {} (child + desc tasks), taskyield
+
+# check how this works in pytorch or if beneficial for image processing!
+int histo[MAX_THREADS];
+#pragma omp parallel private(i)
+{
+    int nthreads, myid;
+    nthreads = omp_get_num_threads();
+    myid = omp_get_thread_num();
+    for( i=0; i<N; i++ ) {
+        if( A[i]%nthreads == myid ) {
+            histo[myid]++;
+        }
+    }
+}
+
+
+int histo[MAX_THREADS];
+#pragma omp parallel private(i)
+{
+    int nthreads, myid;
+    int count=0;
+    nthreads = omp_get_num_threads();
+    myid = omp_get_thread_num();
+    for( i=0; i<N; i++ ) {
+        if( A[i]%nthreads == myid ) {
+            count++;
+        }
+    }
+    histo[myid]=count;
+}
+
+
+struct mycount
+    {int count; char padding[60];};
+    struct mycount padhisto[MAXTH];
+    #pragma omp parallel private(i)
+{
+    int nthreads, myid;
+    nthreads = omp_get_num_threads();
+    myid = omp_get_thread_num();
+    for( i=0; i<N; i++ ) {
+        if( A[i]%nthreads == myid ) {
+            padhisto[myid].count++; }
+    }
+}   
+
+# ! Very important to prevent unwanted side effects
+// OpenMP Data-Sharing Attribute Rules
+pragma omp parallel
+    Global/static variables: Shared (one copy)
+    Local automatic variables: Private (one copy per thread)
+    Loop iteration variables (in combined parallel for): Private
+    Default for other variables: Shared
+
+pragma omp for
+    Loop iteration variable: Private
+    Variables declared in the loop: Private
+    Other variables: Inherit from enclosing parallel region
+
+#pragma omp single
+    Variables declared in the single region: Private
+    Other variables: Inherit from enclosing parallel region
+
+#pragma omp sections
+    Variables declared in the sections: Private
+    Other variables: Inherit from enclosing parallel region
+
+#pragma omp task
+    Global/static variables: Shared
+    Variables declared in the task: Private
+    Variables from enclosing context: Firstprivate by default
+    Variables explicitly shared in enclosing context: Remain shared
+
+Message Passing:
+- comm and sync (MPI_Barrier: wait until all p called) requires subroutine calls
+- comm: P2P | Collective | One-sided (1 prcsr)
+
+MPI-1 Pattern: Wait at barrier, Late Sender/Receiver(until blocking send)
+
+Analyze MPI: IPM, Vampir, Scalasca
+
+# MPI messaging protocols 
+Eager(small messages): message+envelope stored on rcv side in pre-all buf => copied to user buf
+Rendezvous(large messages): rcvr indicates when buf (<= store data dir) available
+    - send/recv sync
+    - serialization of messages => change order of sends/rcvs, _Isend, _Sendrecv
+
+# MPI Process mapping
+- minimizing surface(comm)-to-volume(comp) ratio
+- Fill: the MPI rank space on a node before moving to next node
+- Round-robin: between nodes
+
+# MPI Resource contention <= multi process pairs/groups comm
+- single networks interface card per node
+- network message injection rate
+- topology not truly non-blocking
+- static routing, certian comm pattern(MPI_Alltoall) => hot spots
+
+=> domain decomposition techniques to min surf-to-vol
+=> aggregate messages
+=> Collective comm (MPI_Reduce)
+
+# MPI Overlapping comm and comp
+- MPI_Isend
+- OMP + MPI: hybrid programming
+
+# MPI One-sided Advantages
+- separation of data transfer and sync
+- better performance: less (message matching) oh, no need guar in-order del, good for RDMA
+- irreg/dynamically changing comm patterns
+
+# MPI RMA window objects
+- window: local mem made accessible to group of ps/exposed add range on p
+- collective call on all ps
+- each p: specifiy base addr and size of local window
+- disp_unit: byte-wise addressing
+- window object: union of all windows in a group
+
+# MPI RMA Ordering, Atomicity, Completion
+- all Ops non-blocking, local completion =/= remote completion
+- local compl: syn Ops on whole window(fence, flush), MPI_Wait, _Test
+- ordering: acc Ops same pair of ps
+
+MPI SPMD (master-worker) | MPMD
+
+group(ps(rank)) + context(all messages s+r) => communicator (default:MPI_COMM_WORLD)
+
+MPI Tags:
+- send message(user sets int tag) => helps rec p id message
+- rec: screen for message or MPI_ANY_TAG
+
+# mpi program structure, compatible with pytorch?
+- MPI_INIT
+– MPI_FINALIZE
+– MPI_COMM_SIZE (# of processes)
+– MPI_COMM_RANK (# current process)
+– MPI_SEND
+– MPI_RECV
+
+MPI Parameters (Put, Get, Send/Rec)
+● Put/Get: //describes origin and recv bufs
+○ origin_addr - initial address of origin buffer (choice) || Address of the buffer in
+which to receive the data
+○ origin_count - number of entries in origin buffer (nonnegative integer)
+○ origin_datatype datatype of each entry in origin buffer (handle)
+○ Target_rank rank of target (nonnegative integer)
+○ Target_disp displacement from start of window to target buffer (nonnegative
+integer) || displacement from window start to the beginning of the target buffer
+(nonnegative integer)
+○ Target_count number of entries in target buffer (nonnegative integer)
+○ Target_datatype datatype of each entry in target buffer (handle)
+○ Win window object used for communication (handle)
+
+● Send(start, count, datatype, dest, tag, comm) //describes send buf
+○ Buf initial address of send buffer (choice)
+○ Count number of elements in send buffer (nonnegative integer)
+○ Datatype datatype of each send buffer element (handle)
+○ Dest rank of destination (integer)
+○ Tag message tag (integer)
+○ Comm communicator (handle)
+
+● Recv(start, count, datatype, source, tag, comm, status) //transfer finished when returns
+○ Count maximum number of elements in receive buffer (integer)
+○ Datatype datatype of each receive buffer element (handle)
+○ Source rank of source (integer)
+○ Tag message tag (integer)
+○ Comm communicator (handle)
+
+Collective Ops:
+- each p in comm exec same code, same seq
+
+Bcast
+P0 [A] [ ] [ ]      [A] [ ] [ ]   
+P1 [ ] [ ] [ ]  =>  [A] [ ] [ ]
+P2 [ ] [ ] [ ]      [A] [ ] [ ]
+
+Scatter
+P0 [A] [B] [C]  [ ] [ ] [ ]      [A] [B] [C]  [A] [ ] [ ]
+P1 [ ] [ ] [ ]  [ ] [ ] [ ]  =>  [ ] [ ] [ ]  [B] [ ] [ ]
+P2 [ ] [ ] [ ]  [ ] [ ] [ ]      [ ] [ ] [ ]  [C] [ ] [ ]
+
+Gather
+P0 [A] [ ] [ ]  [ ] [ ] [ ]      [A] [ ] [ ]  [ ] [ ] [ ]
+P1 [B] [ ] [ ]  [A] [B] [C]  <=  [B] [ ] [ ]  [ ] [ ] [ ]
+P2 [C] [ ] [ ]  [ ] [ ] [ ]      [C] [ ] [ ]  [ ] [ ] [ ]
+
+Allgather
+P0 [A] [ ] [ ]  [ ] [ ] [ ]      [A] [ ] [ ]  [A] [B] [C]
+P1 [B] [ ] [ ]  [ ] [ ] [ ]  =>  [B] [ ] [ ]  [A] [B] [C]
+P2 [C] [ ] [ ]  [ ] [ ] [ ]      [C] [ ] [ ]  [A] [B] [C]
+
+Alltoall
+P0 [A0] [A1] [A2]  [ ] [ ] [ ]      [A0] [A1] [A2]  [A0] [B0] [C0]
+P1 [B0] [B1] [B2]  [ ] [ ] [ ]  =>  [B0] [B1] [B2]  [A1] [B1] [C1]
+P2 [C0] [C1] [C2]  [ ] [ ] [ ]      [C0] [C1] [C2]  [A2] [B2] [C2]
+
+Reduce
+P0 [A]  [ ]      [A] [ABC]
+P1 [B]  [ ]  =>  [B] [   ]
+P2 [C]  [ ]      [C] [   ]
+
+Allreduce
+P0 [A]  [ ]      [A] [ABC]
+P1 [B]  [ ]  =>  [B] [ABC]
+P2 [C]  [ ]      [C] [ABC]
+
+Scan
+P0 [A]  [ ]      [A] [A  ]
+P1 [B]  [ ]  =>  [B] [AB ]
+P2 [C]  [ ]      [C] [ABC]
+
+
+
+# RMA in MPI? maybe depends how many gpus are available
+● One sided
+● Remote Memory Access
+● MPI_Put and MPI_Get
+● only one process (called the “origin”) actively participates in the data transfer
+● Guarantees?
+
+# Remote Completion
+Active(target has to issue sync calls) / Passive Target Synchronization:
+● Fence              0
+○ MPI_Win_fence(int assert, MPI_Win win)
+○ Collective call over all processes in the group associated with the window object
+● PSCW
+○ MPI_Win_post(MPI_Group from, int assert, MPI_Win win)
+○ MPI_Win_start()
+○ MPI_Win_complete(MPI_Win win)
+○ MPI_Win_wait()
+○ More general
+○ Can select between exposure(can be target) and access(can issue RMA Ops) epochs
+● Passive-Target(origin)
+○ MPI_Win_lock(int lock_type, int rank, int assert, MPI_Win win) //only specific window
+○ MPI_Win_unlock()
+○ Target does not call any sync routines (hence passive)
+
+MPI_Win_flush(int rank, MPI_Win win)
+MPI_Win_flush_local
+MPI_Win_flush_all
+MPI_Win_flush_local_all
+returns => local buffer can be reused 
+
+// Collective
+MPI_Gather    
+MPI_Reduce     
+MPI_Scatter     
+MPI_Bcast
+
+// Alltoall
+MPI_Allgather
+MPI_Alltoall
+MPI_Allreduce 
+MPI_Reduce_scatter
+
+MPI_Scan
+MPI_Exscan
+MPI_Barrier
+// The call blocks until all processes in the group of the communicator comm
+// have called MPI_Barrier    
+
+// Comm Modes
+- Standard Mode - MPI_(I)Send (runtime system decides whether message is buffered, does not complete until buffer is available)
+    ! Large Messages => Deadlocks    Solution: Sendrecv(supply both bufs)
+● Buffered mode - MPI_Bsend (user supplies a buffer to the system for its use)
+● Ready mode - MPI_Rsend (This mode assumes that an appropriate receive was started)
+● Synchronized mode - MPI_Ssend (does not complete until a matching receive has begun)
+
+Non-blocking Ops:
+MPI_Request request1;
+MPI_Request request2;
+MPI_Status status1, status2;
+MPI_Isend(start, count, datatype, dest, tag, comm, &request1);
+MPI_Irecv(start, count, datatype, dest, tag, comm, &request2);
+MPI_Wait(&request1, &status1); / Waitall / Waitany (any one) / Waitsome (=> 1)
+MPI_Wait(&request2, &status2);
+
+// One-sided
+MPI_Win_create (w/ existing buffer, user-allocated memory exposed as window) or MPI_Win_allocate(_shared) (MPI allocates buffer)
+MPI_Win_create_dynamic (create RMA window w/o attached memory, allow user to attach any number of windows) then
+MPI_Win_attach
+MPI_Win_free
+
+// Atomic one-sided operations:
+• MPI_Accumulate, MPI_Get_accumulate (return content of target buffer before accumulation in result_addr, element-wise atomically)
+• MPI_Fetch_and_op (Accumulate origin buffer into target buffer using op, atomic to other acc Ops), MPI_Compare_and_swap (compare_addr with value at target_disp)
+
+# Network Performance Properties
+Diameter: maximum of shortest path between a pair of nodes (all nodes)
+Latency: delay between send and receive, HW vs SW, ! program with many small messages
+Link Bandwidth: #wires * 1/time-per-bit  >  Effectiv Bandwidth, ! big messages
+Bisection Bandwidth: bw across smalles cut that divides network into 2 equal halves
+
+# Topologies
+Linear Array   d: n-1    bbw: 1
+Torus/Ring     d: n/2    bbw: 2
+2D Mesh        d: 2*(sqrt(n)-1)  bbw: sqrt(n)
+2D Torus       d: sqrt(n)    bbw: 2*sqrt(n)
+Bus            d: 1      bbw: 1
+Crossbar       d: 1      bbw: n^2/4
+Hypercube      n=2^d)    bbw: n/2
+Tree           d: 2logn  bbw: 1
+
+# Latency and BW Model
+Time sending message(length n) = latency + n/bw
+alpha >> beta >> time-per-flop
+! large comp-to-comm to be efficient
+
+# L(atency)o(verhead)g(ap)P(rocessors) Model
+Application performance model for dist mem systems
+explicit comm p2p messages
+
+# PGAS
+Partitioned Global Address Space
+thread can directly r/w remote data, shared data divide in local/remote parts
+locality control, runs everywhere, performance + productivity
+
+# UPC execution model
+threads work independently (spmd)
+MYTHREAD, upc_barrier/ upc_notify, upc_wait (split-phase)
+static vs dynamic threads mode
+
+# UPC shared scalars vs arrays
+scalars: partition thread 0
+arrays: spread over threads
+private vars: private thread mem space, shared vars: once by thread 0
+
+# UPC Worksharing
+upc_forall(init; test; loop; affinity)
+affinity%THREADS == MYTHREAD  vs  upc_threadof(affinity) == MYTHREAD
+
+# UPC layouts
+empty (cyclic): bad for locality
+[*] blocked layout: better for locality
+[0] indefinite, [b] fixed block size
+
+# UPC pointers
+int *p1; private pointer to local mem (fast, local data)
+shared int *p2; private pointer to shared space (refer to remote data)
+int *shared p3; shared pointer to local mem (!avoid)
+shared int *shared p4; shared pointer to shared space (shared link structures)
+
+# Heterogenous Architectures
+> 1 type of compute resource
+1 general purpose processor (CPU), => 1 special purpose processor (target devices)
+mem: unified or separate (device)
+Ideal: 1 set of source files => let compiler optimize
+
+# OMP Offloading
+exec model is host-centric: begins on host, target regions offloaded to target device
+specify: exec config, device data env, host side meantime
+
+pragma omp target        offload execution to the target device
+pragma omp teams         start a league of teams
+pragma omp parallel      start a team of threads
+pragma omp distribute    schedule loop iterations to teams
+pragma omp for            
+pragma omp simd          schedule loop iterations to vector lanes
+
+pragma omp target
+pragma omp target data          like target but no code is offloaded
+pragma omp target enter data    standalone version of target data
+pragma omp target exit data     standalone version of target data
+pragma omp target update
+pragma omp declare target       make vars and functs. available on the target
+
+# OMP inital threads and contention groups
+target always creates new initial thread
+- thread running on accelerator, or host (host fallback)
+- all descendants => contention group
+- no sync between contention groups
+- comm using atomic vars
+
+# OMP Offloading Hierarchy
+threads exec on same SM have acc to shared mem and can sync eff
+- whole GPU exec league of teams => each team exec on a SM => threads exec on SPs
+
+# DDE
+Device Data Environment
+- orig var mapped => corresp var on device
+- automatic updates (also manual)
+- map-enter / compute / map-exit
+
+# CUDA
+Compute Unified Device Architecture
+GPU(device)  =PCIe=>  CPU(host)
+functions (kernels) to be exec on device: __global__(invoked from host) / __device__(called from GPU functions)
+__host__(called from host, exec by CPU)
+
+# CUDA host/device comm
+cudaMalloc()
+---->
+cudaMemcpy(H2D)
+---->
+foo<<<>>>()
+---->
+host(idle/async exec)    device(exec of kernel)
+<----
+cudaMemcpy(D2H)
+
+# GPU Registers and Memory
+- each CUDA thread has private access to registers
+- each CUDA thread has access to own portion of global mem (local mem)
+- each thread block has access to shared mem (__shared__ on-chip)
+Global GPU DRAM mem(slower than on-chip), Texture, constant mem
+__device__ (stored in device mem)
+- scalars, vector types, arrays in registers 
+
+# GPU Hierarchy
+   |consists of SMs
+   |schedules thread blocks for exec
+   |
+Streaming Multiprocessor (SM)    -- schedules SIMD thread for exec -->    CUDA core = Streaming Processor (SP) (SIMD lane)
+   |consist of SPs
+
+# Cuda Hierarchy
+Stream (list of grids, exec in-order)
+Grid (<= 2 32 thread blocks)
+Thread Block (<= 1024 CUDA threads): indep units of work, scheduled any way
+SIMD thread (32 CUDA threads) / Warp (exec in lockstep)
+CUDA thread
+(daxpy: each it exec by CUDA thread)
+
+# Cuda Dev Toolchain
+Nvcc compiler(CPU+GPU code), PTX assembly instructions 
+
+# CUDA Comm and Sync
+- threads in same t block: comm w shared mem, __syncthreads()
+- t blocks in same grid: ! parallel sub-tasks
+- shared and global mem: atomic Ops
