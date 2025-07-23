@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Non-Deterministic Planning & Reinforcement Learning - Study Notes</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            }
+        };
+    </script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1, h2, h3, h4 {
+            color: #2c3e50;
+            margin-top: 2em;
+        }
+        h1 {
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 0.5em;
+        }
+        h2 {
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 0.3em;
+        }
+        pre {
+            background-color: #f4f4f4;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+            overflow-x: auto;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        .algorithm {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+        }
+        .questions {
+            background-color: #e8f4f8;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .questions ol {
+            margin: 0;
+            padding-left: 20px;
+        }
+        table {
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #3498db;
+            color: white;
+        }
+        .key-insight {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 10px;
+            margin: 15px 0;
+        }
+        ul, ol {
+            margin-bottom: 1em;
+        }
+        li {
+            margin-bottom: 0.5em;
+        }
+        .grid-example {
+            background-color: #f0f0f0;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <h1>Artificial Intelligence for Games: Study Notes</h1>
+    <h2>Non-Deterministic Planning & Reinforcement Learning</h2>
+
+    <hr>
+
+    <h2>Table of Contents</h2>
+    <ol>
+        <li><a href="#1-non-deterministic-planning">Non-Deterministic Planning</a>
+            <ul>
+                <li><a href="#11-introduction-to-non-deterministic-problems">Introduction to Non-Deterministic Problems</a></li>
+                <li><a href="#12-markov-reward-processes">Markov Reward Processes</a></li>
+                <li><a href="#13-markov-decision-processes">Markov Decision Processes</a></li>
+                <li><a href="#14-policy-evaluation">Policy Evaluation</a></li>
+                <li><a href="#15-policy-optimization">Policy Optimization</a></li>
+                <li><a href="#16-partially-observable-mdps">Partially Observable MDPs</a></li>
+                <li><a href="#17-advanced-topics">Advanced Topics</a></li>
+            </ul>
+        </li>
+        <li><a href="#2-reinforcement-learning">Reinforcement Learning</a>
+            <ul>
+                <li><a href="#21-model-free-methods">Model-Free Methods</a></li>
+                <li><a href="#22-policy-evaluation-methods">Policy Evaluation Methods</a></li>
+                <li><a href="#23-on-policy-learning">On-Policy Learning</a></li>
+                <li><a href="#24-off-policy-learning">Off-Policy Learning</a></li>
+            </ul>
+        </li>
+    </ol>
+
+    <hr>
+
+    <h1 id="1-non-deterministic-planning">1. Non-Deterministic Planning</h1>
+
+    <hr>
+    <hr>
+    <hr>
+    <hr>
+    <hr>
+
+    <div class="questions">
+        <ol>
+            <li>What real-world example is used to illustrate the extension from deterministic to non-deterministic planning problems?</li>
+            <li>Give three examples of uncertainties that could affect this problem.</li>
+            <li>When transitions become uncertain, what does the transition function become?</li>
+            <li>In non-deterministic planning, why can't we just find a single optimal path to the goal?</li>
+            <li>What is the key difference in what we need to find compared to deterministic planning?</li>
+        </ol>
+    </div>
+
+    <hr>
+    <hr>
+    <hr>
+    <hr>
+    <hr>
+
+    <h2 id="11-introduction-to-non-deterministic-problems">1.1 Introduction to Non-Deterministic Problems</h2>
+
+    <h3>The Goat, Wolf, Cabbage Problem Extension</h3>
+    <p>Traditional planning finds optimal solutions for deterministic problems. However, real-world scenarios often involve uncertainty:</p>
+
+    <p><strong>Example uncertainties:</strong></p>
+    <ul>
+        <li>The goat might not like the cabbage</li>
+        <li>The wolf might not be hungry</li>
+        <li>The boat could sink on any trip</li>
+    </ul>
+
+    <h3>Key Concept: Stochastic Transitions</h3>
+    <p>When transitions become uncertain:</p>
+    <ul>
+        <li>Transition function becomes stochastic: <strong>$T: P(s'|s,a)$ for all $s,s' \in S, a \in A$</strong></li>
+        <li>Rewards/costs become stochastic</li>
+        <li>No guaranteed path to goal exists</li>
+        <li><strong>Need a policy for every possible state</strong>, not just states on a single path</li>
+    </ul>
+
+    <hr>
+    <hr>
+    <hr>
+    <hr>
+    <hr>
+
+    <div class="questions">
+        <ol>
+            <li>What are the four components of a Markov Reward Process tuple?</li>
+            <li>How is the state transition probability matrix P defined mathematically?</li>
+            <li>What does the reward function $R_s$ represent?</li>
+            <li>What is the range of the discount factor γ?</li>
+            <li>What key assumption does an MRP make about actions in each state?</li>
+        </ol>
+    </div>
+
+    <hr>
+    <hr>
+    <hr>
+    <hr>
+    <hr>
+
+    <h2 id="12-markov-reward-processes">1.2 Markov Reward Processes (MRP)</h2>
+
+    <h3>Definition</h3>
+    <p>A Markov Reward Process is a tuple <strong>$\langle S, P, R, \gamma \rangle$</strong> where:</p>
+    <ul>
+        <li><strong>$S$</strong>: Finite set of states</li>
+        <li><strong>$P$</strong>: State transition probability matrix
+            <ul><li>$P_{s,s'} = \Pr[S_{t+1} = s' | S_t = s]$</li></ul>
+        </li>
+        <li><strong>$R$</strong>: Reward function
+            <ul><li>$R_s = \mathbb{E}[R_t | S_t = s]$</li></ul>
+        </li>
+        <li><strong>$\gamma$</strong>: Discount factor, $\gamma \in [0,1]$</li>
+    </ul>
+
+    <div class="key-insight">
+        <strong>Key insight</strong>: MRP assumes a fixed action for each state (no choice of actions).
+    </div>
+
+    <hr>
+    <hr>
+    <hr>
+    <hr>
+    <hr>
+
+    <div class="questions">
+        <ol>
+            <li>What additional component does an MDP have compared to an MRP?</li>
+            <li>In the Frozen Lake example, what are the rewards for reaching states (0,3) and (1,3)?</li>
+            <li>What are the transition probabilities for moving in the Frozen Lake grid world?</li>
+            <li>For finite horizon MDPs, why is γ = 1 allowed and what happens to policies?</li>
+            <li>List four reasons why discounting is used in infinite horizon MDPs.</li>
+        </ol>
+    </div>
+
+    <hr>
+    <hr>
+    <hr>
+    <hr>
+    <hr>
+
+    <h2 id="13-markov-decision-processes">1.3 Markov Decision Processes (MDP)</h2>
+
+    <h3>Definition</h3>
+    <p>A Markov Decision Process extends MRP by adding actions: <strong>$\langle S, A, P, R, \gamma \rangle$</strong></p>
+    <ul>
+        <li><strong>$S$</strong>: Finite set of states</li>
+        <li><strong>$A$</strong>: Finite set of actions</li>
+        <li><strong>$P$</strong>: State transition probability matrix
+            <ul><li>$P_{s,s'}^a = \Pr[S_{t+1} = s' | S_t = s, A_t = a]$</li></ul>
+        </li>
+        <li><strong>$R$</strong>: Reward function
+            <ul><li>$R_s = \mathbb{E}[R_t | S_t = s]$</li></ul>
+        </li>
+        <li><strong>$\gamma$</strong>: Discount factor, $\gamma \in [0,1]$</li>
+    </ul>
+
+    <h3>Example: Frozen Lake Grid World</h3>
+    <div class="grid-example">
+        <pre>
+States and Rewards:
++-------+-------+-------+-------+
+| (0,0) | (0,1) | (0,2) | (0,3) |
+|       |       |       |  +1   |
++-------+-------+-------+-------+
+| (1,0) | HOLE  | (1,2) | (1,3) |
+|       |       |       |  -1   |
++-------+-------+-------+-------+
+| (2,0) | (2,1) | (2,2) | (2,3) |
+|       |       |       |       |
++-------+-------+-------+-------+
+
+Actions: Up, Down, Left, Right
+Transition probabilities:
+- 80% move in intended direction
+- 10% slip left
+- 10% slip right
+        </pre>
+    </div>
+
+    <h3>Finite vs Infinite Horizon MDPs</h3>
+
+    <p><strong>Finite Horizon:</strong></p>
+    <ul>
+        <li>Process terminates after n steps</li>
+        <li>γ = 1 allowed (all future rewards weighted equally)</li>
+        <li>Policies become non-stationary: $\pi(s) \rightarrow \pi^t(s)$</li>
+    </ul>
+
+    <p><strong>Infinite Horizon:</strong></p>
+    <ul>
+        <li>Process continues forever or until terminal state</li>
+        <li>γ < 1 usually required to ensure convergence</li>
+        <li>Reasons for discounting:
+            <ul>
+                <li>Future rewards weighted less</li>
+                <li>Ensures convergence for infinite walks</li>
+                <li>Models human preference for immediate rewards</li>
+                <li>Financial applications (interest rates)</li>
+            </ul>
+        </li>
+    </ul>
+
+    <hr>
+    <hr>
+    <hr>
+    <hr>
+    <hr>
+
+    <div class="questions">
+        <ol>
+            <li>What does the value function $v^\pi(s)$ represent mathematically?</li>
+            <li>Write the recursive Bellman equation for a given policy π.</li>
+            <li>How does the Bellman Optimality Equation differ from the standard Bellman Equation?</li>
+            <li>What are the two main methods for policy evaluation and their computational complexities?</li>
+            <li>In iterative Bellman updates, what is the update formula for $v_{i+1}(s)$?</li>
+        </ol>
+    </div>
+
+    <hr>
+    <hr>
+    <hr>
+    <hr>
+    <hr>
+
+    <h2 id="14-policy-evaluation">1.4 Policy Evaluation</h2>
+
+    <h3>Value Function</h3>
+    <p>The value function $v^\pi(s)$ represents the expected reward when following policy π from state s:</p>
+
+    <p><strong>$$v^\pi(s) = \mathbb{E}\left[\sum_{t=0}^{\infty} \gamma^t R(s_t) \Big| s_0 = s, \pi\right]$$</strong></p>
+
+    <h3>Bellman Equation</h3>
+    <p>The value function satisfies the recursive Bellman equation:</p>
+
+    <p><strong>$$v^\pi(s) = R(s) + \gamma \sum_{s' \in S} P(s'|s,\pi) v^\pi(s')$$</strong></p>
+
+    <h3>Bellman Optimality Equation</h3>
+    <p>For the optimal policy $\pi^*$:</p>
+
+    <p><strong>$$v^{\pi^*}(s) = R(s) + \gamma \max_{a \in A} \sum_{s' \in S} P(s'|s,a) v^{\pi^*}(s')$$</strong></p>
+
+    <h3>Policy Evaluation Methods</h3>
+
+    <ol>
+        <li><strong>Direct Solution</strong>: Solve system of linear equations ($O(n^3)$ complexity)</li>
+        <li><strong>Iterative Bellman Updates</strong>: 
+            <div class="algorithm">
+                $v_{i+1}(s) \leftarrow R(s) + \gamma \sum_{s'} P(s'|s,\pi_i) v_i(s')$
+            </div>
+        </li>
+    </ol>
+
+    <hr>
+    <hr>
+    <hr>
+    <hr>
+    <hr>
+
+    <div class="questions">
+        <ol>
+            <li>What are the two steps that Policy Iteration alternates between?</li>
+            <li>In the Policy Improvement step, how is the new policy π(s) determined?</li>
+            <li>What is the key difference between Policy Iteration and Value Iteration?</li>
+            <li>What is the stopping criterion for Value Iteration in terms of δ and ε?</li>
+            <li>What is the per-iteration complexity of Value Iteration for m actions and n states?</li>
+        </ol>
+    </div>
+
+    <hr>
+    <hr>
+    <hr>
+    <hr>
+    <hr>
+
+    <h2 id="15-policy-optimization">1.5 Policy Optimization</h2>
+
+    <h3>Policy Iteration</h3>
+    <p>Alternates between two steps:</p>
+    <ol>
+        <li><strong>Policy Evaluation</strong>: Given π, calculate $v^\pi(s)$</li>
+        <li><strong>Policy Improvement</strong>: $\pi(s) = \arg\max_{a \in A} \sum_{s'} P(s'|s,a) v^*(s')$</li>
+    </ol>
+
+    <div class="algorithm">
+        <pre>
+<strong>repeat:</strong>
+    v ← PolicyEvaluation(π, v, mdp)
+    unchanged? ← true
+    <strong>for each</strong> state s in S:
+        <strong>if</strong> max<sub>a</sub> Σ<sub>s'</sub> P(s'|s,a)v[s'] > Σ<sub>s'</sub> P(s'|s,π)v[s']:
+            π[s] ← argmax<sub>a</sub> Σ<sub>s'</sub> P(s'|s,a)v[s']
+            unchanged? ← false
+<strong>until</strong> unchanged?
+<strong>return</strong> π
+        </pre>
+    </div>
+
+    <h3>Value Iteration</h3>
+    <p>Combines evaluation and improvement in one step:</p>
+
+    <div class="algorithm">
+        <pre>
+<strong>repeat:</strong>
+    v ← v'
+    δ ← 0
+    <strong>for each</strong> state s in S:
+        v'[s] ← R(s) + γ max<sub>a</sub> Σ<sub>s'</sub> P(s'|s,a) v[s']
+        <strong>if</strong> |v'[s] - v[s]| > δ <strong>then</strong> δ ← |v'[s] - v[s]|
+<strong>until</strong> δ < ε(1-γ)/γ
+<strong>return</strong> v
+        </pre>
+    </div>
+
+    <p><strong>Complexity</strong>: $O(mn^2)$ per iteration for m actions and n states</p>
+
+    <h3>Asynchronous Dynamic Programming</h3>
+
+    <p><strong>Benefits over synchronous updates:</strong></p>
+    <ul>
+        <li>Some states may never be visited under optimal policy</li>
+        <li>Different states converge at different rates</li>
+        <li>Can prioritize important states</li>
+    </ul>
+
+    <p><strong>Methods:</strong></p>
+    <ol>
+        <li><strong>In-place Dynamic Programming</strong>: Update v directly without copying</li>
+        <li><strong>Prioritized Sweeping</strong>: Update states with largest Bellman error first</li>
+        <li><strong>Real-time Dynamic Programming (RTDP)</strong>: 
+            <ul>
+                <li>Sample episodes and update along visited states</li>
+                <li>Initialize with lower bound</li>
+                <li>Follow greedy policy</li>
+                <li>Converges to optimal for stochastic shortest path problems</li>
+            </ul>
+        </li>
+    </ol>
+
+    <hr>
+    <hr>
+    <hr>
+    <hr>
+    <hr>
+
+    <div class="questions">
+        <ol>
+            <li>What two additional components does a POMDP have compared to an MDP?</li>
+            <li>What does the observation function $Z_{s',o}^a$ represent?</li>
+            <li>What is a belief state and why is it necessary in POMDPs?</li>
+            <li>How can a POMDP be reformulated as an MDP, and what is the key challenge with this reformulation?</li>
+            <li>In the simple POMDP example, what is the accuracy of observations and the success rate of actions?</li>
+        </ol>
+    </div>
+
+    <hr>
+    <hr>
+    <hr>
+    <hr>
+    <hr>
+
+    <h2 id="16-partially-observable-mdps">1.6 Partially Observable MDPs (POMDPs)</h2>
+
+    <h3>Definition</h3>
+    <p>POMDP adds partial observability: <strong>$\langle S, A, O, P, R, Z, \gamma \rangle$</strong></p>
+    <ul>
+        <li><strong>$O$</strong>: Finite set of observations</li>
+        <li><strong>$Z$</strong>: Observation function
+            <ul><li>$Z_{s',o}^a = P[O_{t+1} = o | S_t = s', A_t = a]$</li></ul>
+        </li>
+    </ul>
+
+    <h3>Belief States</h3>
+    <p>Since true state is hidden, maintain probability distribution over states:</p>
+
+    <p><strong>$$b(h) = (P(S_t = s^1|H_t = h_t), ..., P(S_t = s^n|H_t = h_t))$$</strong></p>
+
+    <p>Belief update after action a and observation o:</p>
+    <p><strong>$$b'(s_i) = Z_{s_i,o}^a \sum_{s_j \in S} P_{s_j,s_i}^a b(s_j)$$</strong></p>
+
+    <h3>POMDP as Belief MDP</h3>
+    <p>Can reformulate POMDP as MDP over belief states:</p>
+    <ul>
+        <li>States: Distributions B over S (continuous!)</li>
+        <li>Transitions: $P(b'|a,b) = \sum_{o \in O} P(b'|o,a,b)P(o|a,b)$</li>
+        <li>Rewards: $\rho(b) = \sum_{s \in S} R_s b(s)$</li>
+    </ul>
+
+    <h3>Simple POMDP Example</h3>
+    <p>Two-state MDP with noisy observations:</p>
+    <ul>
+        <li>States: $S = \{s_1, s_2\}$, $R(s_1) = 0$, $R(s_2) = 1$</li>
+        <li>Actions: STAY or GO (90% success rate)</li>
+        <li>Observations: $O = S$ with $Z_{s',s'} = 0.6$ (60% correct observation)</li>
+    </ul>
+
+    <h3>QMDP Approximation</h3>
+    <p>Assumes full observability after next step:</p>
+    <ul>
+        <li>Solve MDP under full observability to get Q(s,a)</li>
+        <li>Policy: $\pi_{QMDP}(b) = \arg\max_{a \in A} b \cdot \alpha_a$</li>
+        <li>Upper bounds optimal policy</li>
+        <li>Struggles with information-gathering actions</li>
+    </ul>
+
+    <hr>
+    <hr>
+    <hr>
+    <hr>
+    <hr>
+
+    <div class="questions">
+        <ol>
+            <li>In Factored MDPs, how are states represented differently from standard MDPs?</li>
+            <li>What is the dependency set D($x_i$) for each factor $x_i$?</li>
+            <li>How does factoring reduce the complexity of transitions in the 10×10 grid example?</li>
+            <li>What is the basic approach of replanning for handling uncertainty?</li>
+            <li>What type of problems does replanning work well for?</li>
+        </ol>
+    </div>
+
+    <hr>
+    <hr>
+    <hr>
+    <hr>
+    <hr>
+
+    <h2 id="17-advanced-topics">1.7 Advanced Topics</h2>
+
+    <h3>Factored MDPs</h3>
+    <p>States represented as combinations of factors $X = \{x_1, x_2, ..., x_d\}$:</p>
+    <ul>
+        <li>Each factor $x_i$ has dependency set $D(x_i) \subseteq X$</li>
+        <li>Transitions: $p(x_i'|X,a) = p(x_i'|D(x_i),a)$</li>
+        <li>Reduces transition complexity from $|S| \times |A| \times |S|$ to $|X| \times |A| \times |D(x)|$</li>
+    </ul>
+
+    <p><strong>Example</strong>: 10×10 grid with 4 actions</p>
+    <ul>
+        <li>Standard: 400 transitions</li>
+        <li>Factored: $2 \times 4 \times 1 = 8$ transitions (+1/-1 for x,y)</li>
+    </ul>
+
+    <h3>Replanning</h3>
+    <p>Approximate by assuming most likely future:</p>
+    <ol>
+        <li>Compute most likely path using A* search</li>
+        <li>Execute first action</li>
+        <li>If unexpected state reached, replan</li>
+        <li>Works well for "probabilistic uninteresting" problems</li>
+    </ol>
+
+    <hr>
+
+    <h1 id="2-reinforcement-learning">2. Reinforcement Learning</h1>
+
+    <hr>
+    <hr>
+    <hr>
+    <hr>
+    <hr>
+
+    <div class="questions">
+        <ol>
+            <li>List three reasons why model-free methods are needed instead of MDPs.</li>
+            <li>What is an episode in reinforcement learning notation?</li>
+            <li>Define exploration and exploitation in the context of reinforcement learning.</li>
+            <li>What do the samples (s,a,s') and r,s represent in terms of the underlying distributions?</li>
+            <li>Why might MDPs be impractical for real-world problems?</li>
+        </ol>
+    </div>
+
+    <hr>
+    <hr>
+    <hr>
+    <hr>
+    <hr>
+
+    <h2 id="21-model-free-methods">2.1 Model-Free Methods</h2>
+
+    <h3>Motivation</h3>
+    <p>MDPs require complete model knowledge, but often:</p>
+    <ul>
+        <li>Transition functions unknown</li>
+        <li>State spaces too large</li>
+        <li>Partial observability</li>
+        <li>Continuous spaces</li>
+    </ul>
+
+    <h3>Key Concepts</h3>
+    <p><strong>Episodes</strong>: $e = s_1,a_1,r_1,s_2,a_2,r_2,...,s_l,a_l,r_l,s_{l+1}$</p>
+    <ul>
+        <li>$(s,a,s')$ samples from $P(s'|s,a)$</li>
+        <li>$r,s$ samples from $R(s)$</li>
+    </ul>
+
+    <p><strong>Exploration vs Exploitation</strong>:</p>
+    <ul>
+        <li><strong>Exploitation</strong>: Use current policy estimate</li>
+        <li><strong>Exploration</strong>: Try unknown state-action pairs</li>
+    </ul>
+
+    <hr>
+    <hr>
+    <hr>
+    <hr>
+    <hr>
+
+    <div class="questions">
+        <ol>
+            <li>How does Monte Carlo policy evaluation estimate the value function?</li>
+            <li>What is $G_t(x)$ in the Monte Carlo method?</li>
+            <li>What is the incremental update formula for Monte Carlo learning?</li>
+            <li>List four key properties of Monte Carlo methods.</li>
+            <li>What is the TD target and TD error in Temporal Difference learning?</li>
+        </ol>
+    </div>
+
+    <hr>
+    <hr>
+    <hr>
+    <hr>
+    <hr>
+
+    <h2 id="22-policy-evaluation-methods">2.2 Policy Evaluation Methods</h2>
+
+    <h3>Monte Carlo (MC) Policy Evaluation</h3>
+    <p>Estimates value by averaging complete episode returns:</p>
+
+    <p><strong>$$v^\pi(s) = \frac{\sum_{x \in X(s)} G_t(x)}{|X(s)|}$$</strong></p>
+
+    <p>where $G_t(x) = \sum_{i=t}^l \gamma^i R(x_i)$ is the return from time t</p>
+
+    <p><strong>Incremental update</strong>:</p>
+    <div class="algorithm">
+        $v(s_t) \leftarrow v(s_t) + \alpha[G_t(x) - v(s_t)]$
+    </div>
+
+    <p><strong>Properties</strong>:</p>
+    <ul>
+        <li>Unbiased estimate</li>
+        <li>High variance</li>
+        <li>Requires complete episodes</li>
+        <li>Simple to implement</li>
+    </ul>
+
+    <h3>Temporal Difference (TD) Learning</h3>
+    <p>Updates value estimates after each step:</p>
+
+    <p><strong>$$v(s_t) \leftarrow v(s_t) + \alpha[R(s_{t+1}) + \gamma v(s_{t+1}) - v(s_t)]$$</strong></p>
+
+    <ul>
+        <li><strong>TD target</strong>: $R(s_{t+1}) + \gamma v(s_{t+1})$</li>
+        <li><strong>TD error</strong>: $R(s_{t+1}) + \gamma v(s_{t+1}) - v(s_t)$</li>
+    </ul>
+
+    <p><strong>Properties</strong>:</p>
+    <ul>
+        <li>Biased estimate (uses current v estimate)</li>
+        <li>Low variance</li>
+        <li>Online learning</li>
+        <li>Works with incomplete episodes</li>
+    </ul>
+
+    <h3>MC vs TD Comparison</h3>
+
+    <table>
+        <tr>
+            <th>Monte Carlo</th>
+            <th>Temporal Difference</th>
+        </tr>
+        <tr>
+            <td>High variance, zero bias</td>
+            <td>Low variance, some bias</td>
+        </tr>
+        <tr>
+            <td>Must wait for episode end</td>
+            <td>Online, step-by-step</td>
+        </tr>
+        <tr>
+            <td>Converges to $v^\pi(s)$</td>
+            <td>Converges to $v^\pi(s)$ (tables)</td>
+        </tr>
+        <tr>
+            <td>Not sensitive to initial value</td>
+            <td>Sensitive to initial value</td>
+        </tr>
+        <tr>
+            <td>Exploits all episode info</td>
+            <td>Exploits Markov property</td>
+        </tr>
+    </table>
+
+    <hr>
+    <hr>
+    <hr>
+    <hr>
+    <hr>
+
+    <div class="questions">
+        <ol>
+            <li>What does SARSA stand for and why is it called that?</li>
+            <li>Write the SARSA Q-value update equation.</li>
+            <li>How does ε-greedy exploration determine action probabilities?</li>
+            <li>What are the two conditions for GLIE convergence to the optimal policy?</li>
+            <li>How is GLIE typically implemented in practice with respect to ε?</li>
+        </ol>
+    </div>
+
+    <hr>
+    <hr>
+    <hr>
+    <hr>
+    <hr>
+
+    <h2 id="23-on-policy-learning">2.3 On-Policy Learning</h2>
+
+    <h3>SARSA (State-Action-Reward-State-Action)</h3>
+    <p>On-policy TD control using Q-values:</p>
+
+    <p><strong>$$Q(S,A) \leftarrow Q(S,A) + \alpha[R + \gamma Q(S',A') - Q(S,A)]$$</strong></p>
+
+    <div class="algorithm">
+        <pre>
+<strong>init</strong> Q(s,a) for all s ∈ S, a ∈ A
+<strong>for</strong> n episodes:
+    <strong>init</strong> s
+    choose a from A(s) based on Q (e.g. ε-greedy)
+    <strong>repeat until</strong> episode finished:
+        s',r = query_Env(s,a)
+        choose a' from A(s') based on Q
+        Q(s,a) ← Q(s,a) + α(r + γQ(s',a') - Q(s,a))
+        s ← s', a ← a'
+    <strong>until</strong> s is terminal
+        </pre>
+    </div>
+
+    <h3>ε-Greedy Exploration</h3>
+    <p>Balances exploration and exploitation:</p>
+
+    <p>$$\pi(a|s) = \begin{cases}
+    \frac{\varepsilon}{m} + (1-\varepsilon) & \text{if } a = \arg\max_a Q(s,a) \\
+    \frac{\varepsilon}{m} & \text{otherwise}
+    \end{cases}$$</p>
+
+    <p>where $m = |A(s)|$</p>
+
+    <h3>GLIE (Greedy in the Limit with Infinite Exploration)</h3>
+    <p>Conditions for convergence to optimal policy:</p>
+    <ol>
+        <li>All state-action pairs explored infinitely: $\lim_{k \to \infty} N_k(s,a) = \infty$</li>
+        <li>Policy converges to greedy: $\lim_{k \to \infty} \pi_k(a|s) = \mathbb{1}(a = \arg\max_{a'} q_k(s,a'))$</li>
+    </ol>
+
+    <p><strong>Implementation</strong>: $\varepsilon_k = \frac{1}{k}$</p>
+
+    <hr>
+    <hr>
+    <hr>
+    <hr>
+    <hr>
+
+    <div class="questions">
+        <ol>
+            <li>Give three motivations for using off-policy learning methods.</li>
+            <li>What is the importance sampling formula for correcting different distributions?</li>
+            <li>Write the Q-Learning update equation and explain how it differs from SARSA.</li>
+            <li>In Q-Learning, what is the behavior policy η used for versus the target policy π?</li>
+            <li>What are the key differences between SARSA and Q-Learning in terms of policy learning?</li>
+        </ol>
+    </div>
+
+    <hr>
+    <hr>
+    <hr>
+    <hr>
+    <hr>
+
+    <h2 id="24-off-policy-learning">2.4 Off-Policy Learning</h2>
+
+    <h3>Motivation</h3>
+    <p>Learn optimal policy while following exploratory behavior:</p>
+    <ul>
+        <li>Learn from other agents/humans</li>
+        <li>Reuse old experience</li>
+        <li>Learn multiple policies simultaneously</li>
+    </ul>
+
+    <h3>Importance Sampling</h3>
+    <p>Corrects for different state distributions:</p>
+
+    <p><strong>$$\mathbb{E}_{X \sim P}[f(X)] = \mathbb{E}_{X \sim Q}\left[\frac{P(X)}{Q(X)} \cdot f(X)\right]$$</strong></p>
+
+    <p>For TD with behavior policy η and target policy π:</p>
+    <p><strong>$$v(S_t) \leftarrow v(S_t) + \alpha \cdot \frac{\pi(A_t|S_t)}{\eta(A_t|S_t)} \cdot [r_{t+1} + \gamma v(S_{t+1}) - v(S_t)]$$</strong></p>
+
+    <h3>Q-Learning</h3>
+    <p>Off-policy TD control without importance sampling:</p>
+
+    <p><strong>$$Q(S_t,A_t) \leftarrow Q(S_t,A_t) + \alpha[r_{t+1} + \gamma \max_a Q(S_{t+1},a) - Q(S_t,A_t)]$$</strong></p>
+
+    <div class="algorithm">
+        <pre>
+<strong>init</strong> Q(s,a) for all s ∈ S, a ∈ A
+<strong>for</strong> n episodes:
+    <strong>init</strong> s
+    <strong>repeat until</strong> episode finished:
+        choose a from A(s) with behavior policy η
+        s',r = query_Env(s,a)
+        Q(s,a) ← Q(s,a) + α(r + γ max<sub>a</sub> Q(s',a) - Q(s,a))
+        s ← s'
+    <strong>until</strong> s is terminal
+        </pre>
+    </div>
+
+    <p><strong>Key insight</strong>:</p>
+    <ul>
+        <li>Behavior policy η explores (e.g., ε-greedy)</li>
+        <li>Target policy π is greedy: $\pi(s) = \arg\max_a Q(s,a)$</li>
+        <li>Converges to $Q^*(s,a)$ under mild conditions</li>
+    </ul>
+
+    <h3>SARSA vs Q-Learning</h3>
+    <ul>
+        <li><strong>SARSA</strong>: On-policy, learns $Q^\pi$ for current policy</li>
+        <li><strong>Q-Learning</strong>: Off-policy, learns $Q^*$ regardless of behavior</li>
+        <li>SARSA is more conservative (considers exploration in value estimates)</li>
+        <li>Q-Learning may overestimate in stochastic environments</li>
+    </ul>
+
+    <hr>
+
+    <h2>Summary</h2>
+
+    <h3>Non-Deterministic Planning</h3>
+    <ul>
+        <li>MDPs model sequential decision problems with uncertainty</li>
+        <li>Value/Policy iteration solve MDPs when model is known</li>
+        <li>POMDPs handle partial observability via belief states</li>
+        <li>Various approximations handle large state spaces</li>
+    </ul>
+
+    <h3>Reinforcement Learning</h3>
+    <ul>
+        <li>Learn optimal behavior from experience without model</li>
+        <li>MC methods use complete returns (high variance, unbiased)</li>
+        <li>TD methods bootstrap from value estimates (low variance, biased)</li>
+        <li>On-policy (SARSA) vs Off-policy (Q-Learning) trade exploration handling</li>
+    </ul>
+
+    <h3>Key Algorithms Complexity</h3>
+    <ul>
+        <li>Value/Policy Iteration: $O(mn^2)$ per iteration</li>
+        <li>SARSA/Q-Learning: $O(1)$ per step update</li>
+        <li>POMDP exact solution: PSPACE-complete</li>
+    </ul>
+
+    <h3>When to Use What</h3>
+    <ul>
+        <li><strong>Known model, small state space</strong>: Value/Policy Iteration</li>
+        <li><strong>Unknown model, need optimal policy</strong>: Q-Learning</li>
+        <li><strong>Unknown model, safer exploration</strong>: SARSA</li>
+        <li><strong>Partial observability</strong>: POMDP methods or state aggregation</li>
+        <li><strong>Large/continuous spaces</strong>: Function approximation (neural networks)</li>
+    </ul>
+</body>
+</html>

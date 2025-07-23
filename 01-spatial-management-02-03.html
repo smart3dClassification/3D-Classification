@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI for Games - Virtual Environments and Spatial Management</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            }
+        };
+    </script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1, h2, h3, h4 {
+            color: #2c3e50;
+            margin-top: 30px;
+        }
+        h1 {
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+        h2 {
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 8px;
+        }
+        pre {
+            background-color: #f4f4f4;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        .question {
+            background-color: #e8f4f8;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            margin: 30px 0;
+            font-weight: bold;
+            border-radius: 4px;
+        }
+        ul {
+            margin: 10px 0;
+            padding-left: 30px;
+        }
+        li {
+            margin: 5px 0;
+        }
+        table {
+            border-collapse: collapse;
+            margin: 20px 0;
+            background-color: white;
+        }
+        table td, table th {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        table th {
+            background-color: #3498db;
+            color: white;
+        }
+        .algorithm {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .example {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        strong {
+            color: #2c3e50;
+        }
+        hr {
+            border: none;
+            height: 1px;
+            background-color: #ddd;
+            margin: 40px 0;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Part 1: Virtual Environments</h1>
+
+<hr>
+<hr>
+<hr>
+<hr>
+<hr>
+
+<div class="question">
+What are the four main architecture layers in game development from bottom to top? What types of components does the Game Engine Layer contain?
+</div>
+
+<hr>
+<hr>
+<hr>
+<hr>
+<hr>
+
+<h3>1. Building Blocks in Architecture</h3>
+
+<p>Games are built using a layered architecture with the following components:</p>
+
+<h4>Architecture Layers (Bottom to Top):</h4>
+<ol>
+    <li><strong>Hardware Layer</strong>: Sound Card, Graphics Card, Input devices, Network</li>
+    <li><strong>Hardware Abstraction Layer</strong>: DirectX, OpenGL, etc.</li>
+    <li><strong>Game Engine Layer</strong>: Contains multiple subsystems</li>
+    <li><strong>Game Content Layer</strong>: The actual game assets and logic</li>
+</ol>
+
+<h4>Game Engine Components:</h4>
+
+<p><strong>Core Systems:</strong></p>
+<ul>
+    <li><strong>Game Core</strong>: Represents and manages the environment</li>
+    <li><strong>Persistence Layer</strong>: Stores data for analysis and learning</li>
+    <li><strong>Physics Engine</strong>: Simulates physical interactions</li>
+</ul>
+
+<p><strong>Media Systems:</strong></p>
+<ul>
+    <li><strong>Sound Manager</strong>: Audio processing</li>
+    <li><strong>Animation Engine</strong>: Character and object animations</li>
+    <li><strong>Rendering Engine</strong>: Visual output generation</li>
+    <li><strong>Graphics Engine</strong>: Low-level graphics operations</li>
+</ul>
+
+<p><strong>Support Systems:</strong></p>
+<ul>
+    <li><strong>User Interface</strong>: Player interaction</li>
+    <li><strong>Script Language</strong>: Game logic scripting</li>
+    <li><strong>AI Engine</strong>: Computes NPC actions</li>
+    <li><strong>Network Module</strong>: Multiplayer support</li>
+</ul>
+
+<h4>AI-Relevant Components:</h4>
+<ul>
+    <li><strong>Directly involved:</strong>
+        <ul>
+            <li>AI Engine: Computes actions</li>
+            <li>Game Core: Represents the environment</li>
+            <li>Physics Engine (sometimes)</li>
+        </ul>
+    </li>
+    <li><strong>Supporting infrastructure:</strong>
+        <ul>
+            <li>Network layer: For distributed environments</li>
+            <li>Spatial management: In core or physics engine</li>
+            <li>Persistence layer: Store data for analysis/learning</li>
+            <li>Scalability considerations for MMO or fast simulations</li>
+        </ul>
+    </li>
+</ul>
+
+<hr>
+<hr>
+<hr>
+<hr>
+<hr>
+
+<div class="question">
+What does Game State contain and what types of information are explicitly NOT part of Game State? How does the Model-View-Controller pattern apply to game architecture?
+</div>
+
+<hr>
+<hr>
+<hr>
+<hr>
+<hr>
+
+<h3>2. Game State</h3>
+
+<p>The <strong>Game State</strong> contains all dynamic information representing the current state of the game:</p>
+
+<h4>Components:</h4>
+<ul>
+    <li><strong>Objects, attributes, relationships</strong> (think ER or UML models)</li>
+    <li><strong>Dynamic information only</strong></li>
+    <li><strong>Lists of all game entities</strong></li>
+    <li><strong>Attributes of game entities</strong></li>
+    <li><strong>Global game information</strong></li>
+</ul>
+
+<h4>Not in Game State:</h4>
+<ul>
+    <li>Static information</li>
+    <li>Environmental models/maps (unless dynamic)</li>
+    <li>Preset attributes of game entities</li>
+</ul>
+
+<h4>Design Pattern: Model-View-Controller (MVC)</h4>
+<ul>
+    <li><strong>Server (Model)</strong>: Manages game state, no visualization needed</li>
+    <li><strong>Client (View + Controller)</strong>: Partial game state, handles I/O and visualization</li>
+</ul>
+
+<div class="example">
+<strong>Example - Chess Game State:</strong>
+<pre>
+Game Information:
+- Players and colors (black/white)
+- Game mode (with/without clock)
+
+Game State:
+- Board positions (8x8 grid)
+- Current player's turn
+- Time remaining (if clock mode)
+</pre>
+</div>
+
+<hr>
+<hr>
+<hr>
+<hr>
+<hr>
+
+<div class="question">
+What are the three main triggers for state changes in games? What key properties must transitions maintain?
+</div>
+
+<hr>
+<hr>
+<hr>
+<hr>
+<hr>
+
+<h3>3. Transitions</h3>
+
+<p>Transitions change the game state over time.</p>
+
+<h4>Triggers for State Changes:</h4>
+<ol>
+    <li><strong>Player actions</strong> (e.g., chess move)</li>
+    <li><strong>Agent actions</strong> (AI decisions)</li>
+    <li><strong>Transition models</strong> (e.g., gravity causing objects to fall)</li>
+</ol>
+
+<h4>Key Properties:</h4>
+<ul>
+    <li>Transitions maintain <strong>consistency</strong>: valid state → valid state</li>
+    <li>Transitions <strong>implement game rules</strong></li>
+    <li>Need temporal synchronization</li>
+</ul>
+
+<div class="example">
+<strong>Example - Chess Transition:</strong>
+<pre>
+Initial State: Knight at G1
+Action: Move Knight to F3
+Validation: Check if move is legal (L-shaped pattern)
+New State: Knight at F3
+</pre>
+</div>
+
+<hr>
+<hr>
+<hr>
+<hr>
+<hr>
+
+<div class="question">
+What parameters do physics engines require from game entities? What is the fundamental trade-off between detail level and performance in transition modeling?
+</div>
+
+<hr>
+<hr>
+<hr>
+<hr>
+<hr>
+
+<h3>4. Transition Modeling</h3>
+
+<h4>Physics Engines:</h4>
+<ul>
+    <li>Implement solid state physics and classical mechanics</li>
+    <li>Required parameters from game entities:
+        <ul>
+            <li>Spatial extension (mesh, cylinders, bounding boxes)</li>
+            <li>Movement vectors</li>
+            <li>Mass</li>
+            <li>Other physical properties</li>
+        </ul>
+    </li>
+    <li>Use differential equations</li>
+    <li>Require high tick rates for realism</li>
+    <li>Computationally expensive (precomputation, approximations)</li>
+</ul>
+
+<h4>Detail Level vs Performance Trade-off:</h4>
+<ul>
+    <li><strong>High detail</strong>: More accurate physics, fewer entities, lower framerates</li>
+    <li><strong>Low detail</strong>: Approximations, more entities, higher framerates</li>
+</ul>
+
+<div class="example">
+<strong>Example:</strong>
+<ul>
+    <li>FPS: Models bullet physics precisely</li>
+    <li>RPG: Combat as statistical random process</li>
+</ul>
+</div>
+
+<hr>
+<hr>
+<hr>
+<hr>
+<hr>
+
+<div class="question">
+What are the three main temporal models for organizing when transitions occur? How do they differ in terms of when and how agent actions are processed?
+</div>
+
+<hr>
+<hr>
+<hr>
+<hr>
+<hr>
+
+<h3>5. Temporal Models</h3>
+
+<p>Three main temporal models organize when transitions occur:</p>
+
+<hr>
+<hr>
+<hr>
+<hr>
+<hr>
+
+<div class="question">
+In a turn-based model, what prevents blocking and how do agents interact with the game state during decision-making? What are the main advantages and disadvantages?
+</div>
+
+<hr>
+<hr>
+<hr>
+<hr>
+<hr>
+
+<h4>5.1 Turn-Based Model</h4>
+<ul>
+    <li><strong>Process</strong>: Agents queried in fixed order</li>
+    <li><strong>Properties</strong>:
+        <ul>
+            <li>Game state fixed during decision-making</li>
+            <li>Actions sequential or parallel</li>
+            <li>Agent timeout prevents blocking</li>
+        </ul>
+    </li>
+</ul>
+
+<div class="example">
+<strong>Example - Round-based RPG:</strong>
+<ol>
+    <li>Environment determines attack order</li>
+    <li>Agent 1 chooses action → compute new state</li>
+    <li>Agent 2 chooses action → compute new state</li>
+    <li>Environment progresses transition model</li>
+</ol>
+</div>
+
+<p><strong>Pros:</strong></p>
+<ul>
+    <li>Clear, understandable timing</li>
+    <li>Speed adjusts to slowest agent</li>
+</ul>
+
+<p><strong>Cons:</strong></p>
+<ul>
+    <li>No real-time synchronization</li>
+    <li>Fast agents can't gain advantage</li>
+</ul>
+
+<hr>
+<hr>
+<hr>
+<hr>
+<hr>
+
+<div class="question">
+How does the transaction model process actions and what database concept does it resemble? What advantage do faster agents have in this model?
+</div>
+
+<hr>
+<hr>
+<hr>
+<hr>
+<hr>
+
+<h4>5.2 Transaction Model</h4>
+<ul>
+    <li><strong>Process</strong>: Actions queued FIFO</li>
+    <li><strong>Properties</strong>:
+        <ul>
+            <li>Each transition processed sequentially</li>
+            <li>Like ACID database transactions</li>
+            <li>Agents submit actions at any speed</li>
+        </ul>
+    </li>
+</ul>
+
+<p><strong>Pros:</strong></p>
+<ul>
+    <li>Guarantees valid state</li>
+    <li>Faster agents → more actions</li>
+</ul>
+
+<p><strong>Cons:</strong></p>
+<ul>
+    <li>No wall-clock synchronization</li>
+    <li>No true simultaneous actions</li>
+</ul>
+
+<hr>
+<hr>
+<hr>
+<hr>
+<hr>
+
+<div class="question">
+What makes tick systems "soft" real-time and how are actions within a tick treated? What are the two main consistency solutions for tick systems?
+</div>
+
+<hr>
+<hr>
+<hr>
+<hr>
+<hr>
+
+<h4>5.3 Tick Systems (Soft Real-Time)</h4>
+<ul>
+    <li><strong>Process</strong>: Fixed time intervals</li>
+    <li><strong>Properties</strong>:
+        <ul>
+            <li>Actions within tick treated as simultaneous</li>
+            <li>Real-time with respect to tick length</li>
+            <li>"Soft" = processing may exceed tick duration</li>
+        </ul>
+    </li>
+</ul>
+
+<div class="example">
+<strong>Example - Concurrent Actions:</strong>
+<pre>
+Character A: 100 HP
+At tick t:
+- Takes 100 damage from B
+- Receives 100 healing from C
+Result: Effects cancel (not sequential processing)
+</pre>
+</div>
+
+<p><strong>Pros:</strong></p>
+<ul>
+    <li>Synchronizes game-time with wall-clock</li>
+    <li>Fair action rates</li>
+    <li>True concurrency</li>
+</ul>
+
+<p><strong>Cons:</strong></p>
+<ul>
+    <li>Lag handling</li>
+    <li>Conflict resolution needed</li>
+    <li>Chronological ordering within ticks</li>
+</ul>
+
+<h4>Consistency Solutions:</h4>
+<ol>
+    <li><strong>Shadow Memory</strong>:
+        <ul>
+            <li>Two game states: G1 (active), G2 (inactive)</li>
+            <li>Read from G1, write to G2</li>
+            <li>Swap at tick end</li>
+        </ul>
+    </li>
+    <li><strong>Fixed Read/Write Sequence</strong>:
+        <ul>
+            <li>Structured action processing</li>
+            <li>Prevents read-after-write issues</li>
+        </ul>
+    </li>
+</ol>
+
+<hr>
+<hr>
+<hr>
+<hr>
+<hr>
+
+<div class="question">
+Why can games be modeled as Markov processes? What are the key components of a Discrete-Time Homogeneous Markov Process and what does the Markov property mean?
+</div>
+
+<hr>
+<hr>
+<hr>
+<hr>
+<hr>
+
+<h3>6. Stochastic Processes</h3>
+
+<p>Games can be modeled mathematically as Markov processes due to non-deterministic elements.</p>
+
+<h4>Discrete-Time Homogeneous Markov Process:</h4>
+<ul>
+    <li><strong>States</strong>: $S = \{$all possible game states$\}$</li>
+    <li><strong>Transition function</strong>: $T: P(s'|s)$ for all $s,s' \in S$</li>
+    <li><strong>Start distribution</strong>: $B: P(s'|-)$</li>
+    <li><strong>Terminal states</strong>: $S_{terminal}$</li>
+</ul>
+
+<div class="example">
+<strong>Example Transition Matrix:</strong>
+<table>
+    <tr>
+        <th></th>
+        <th>-</th>
+        <th>A</th>
+        <th>B</th>
+        <th>C</th>
+    </tr>
+    <tr>
+        <td><strong>-</strong></td>
+        <td>0.0</td>
+        <td>0.3</td>
+        <td>0.3</td>
+        <td>0.4</td>
+    </tr>
+    <tr>
+        <td><strong>A</strong></td>
+        <td>0.1</td>
+        <td>0.25</td>
+        <td>0.5</td>
+        <td>0.15</td>
+    </tr>
+    <tr>
+        <td><strong>B</strong></td>
+        <td>0.1</td>
+        <td>0.5</td>
+        <td>0.4</td>
+        <td>0.0</td>
+    </tr>
+    <tr>
+        <td><strong>C</strong></td>
+        <td>0.1</td>
+        <td>0.1</td>
+        <td>0.7</td>
+        <td>0.1</td>
+    </tr>
+</table>
+</div>
+
+<p><strong>Probability Calculation:</strong></p>
+$$P(ACBB) = P(A|-) \times P(C|A) \times P(B|C) \times P(B|B) \times P(-|B)$$
+$$= 0.3 \times 0.15 \times 0.7 \times 0.4 \times 0.1$$
+
+<h4>Properties:</h4>
+<ul>
+    <li><strong>Markov Property</strong>: Next state depends only on current state (memoryless)</li>
+    <li><strong>Discrete time</strong>: Turn-based or tick-based</li>
+    <li><strong>Homogeneous</strong>: Same transition function over time (usually)</li>
+    <li>Games fulfill Markov property: game state contains all needed information</li>
+</ul>
+
+<h1>Part 2: Spatial Management</h1>
+
+<hr>
+<hr>
+<hr>
+<hr>
+<hr>
+
+<div class="question">
+What are the four key spatial queries that games need to perform efficiently? Using the example of 1000 entities at 24 ticks/second, how many distance calculations would a naive approach require per second?
+</div>
+
+<hr>
+<hr>
+<hr>
+<hr>
+<hr>
+
+<h3>1. Spatial Management Overview</h3>
+
+<p>Most games occur in spatial environments requiring efficient spatial query processing.</p>
+
+<h4>Key Spatial Queries:</h4>
+<ol>
+    <li><strong>Area of Interest (AoI)</strong>: Which entities are within interaction range?</li>
+    <li><strong>Collision Detection</strong>: Pre-filtering for detailed physics</li>
+    <li><strong>Nearest Neighbor</strong>: Find closest entity</li>
+    <li><strong>Range Checks</strong>: Aggro range, attack range</li>
+</ol>
+
+<div class="example">
+<strong>Scalability Problem:</strong>
+<p>1000 entities, 24 ticks/second</p>
+<p>Naive approach: $\frac{1000 \times 999}{2} \times 24 = 11,988,000$ distance calculations/second</p>
+</div>
+
+<hr>
+<hr>
+<hr>
+<hr>
+<hr>
+
+<div class="question">
+What are the four main types of spatial queries and their mathematical definitions? How does an intersection query differ from a range query?
+</div>
+
+<hr>
+<hr>
+<hr>
+<hr>
+<hr>
+
+<h3>2. Spatial Query Types</h3>
+
+<h4>2.1 ε-Range Query</h4>
+$$RQ(q,\varepsilon) = \{v \in GS \mid \sqrt{(q_1-v_1)^2 + (q_2-v_2)^2} \leq \varepsilon\}$$
+<p>Returns all objects within distance ε from query point q.</p>
+
+<h4>2.2 Box Query</h4>
+$$BQ(q,\varepsilon) = \{v \in GS \mid x_1 \leq v_1 \leq y_1 \land x_2 \leq v_2 \leq y_2\}$$
+<p>Returns all objects within rectangular region.</p>
+
+<h4>2.3 Intersection Query</h4>
+$$IQ(q,r) = \{(v,s) \in GS \times \mathbb{R} \mid \sqrt{(q_1-v_1)^2 + (q_2-v_2)^2} \leq r + s\}$$
+<p>Finds objects whose ranges overlap with query range.</p>
+
+<h4>2.4 Nearest Neighbor Query</h4>
+$$NN(q) = \{v \in GS \mid \forall x \in GS: \text{dist}(q,v) \leq \text{dist}(q,x)\}$$
+<p>Returns closest object to query point.</p>
+
+<hr>
+<hr>
+<hr>
+<hr>
+<hr>
+
+<div class="question">
+What are the three main spatial management techniques? What specific problems does basic zoning face?
+</div>
+
+<hr>
+<hr>
+<hr>
+<hr>
+<hr>
+
+<h3>3. Spatial Management Techniques</h3>
+
+<hr>
+<hr>
+<hr>
+<hr>
+<hr>
+
+<div class="question">
+How does zoning split the game world and what are its main benefits? What challenges arise with border objects and player distribution?
+</div>
+
+<hr>
+<hr>
+<hr>
+<hr>
+<hr>
+
+<h4>3.1 Zoning</h4>
+<ul>
+    <li><strong>Concept</strong>: Split world into fixed areas</li>
+    <li><strong>Benefits</strong>:
+        <ul>
+            <li>Only check objects in current zone</li>
+            <li>Easy distribution across servers</li>
+        </ul>
+    </li>
+    <li><strong>Problems</strong>:
+        <ul>
+            <li>Border objects need multi-zone checks</li>
+            <li>Heterogeneous player distribution</li>
+        </ul>
+    </li>
+</ul>
+
+<hr>
+<hr>
+<hr>
+<hr>
+<hr>
+
+<div class="question">
+How does micro-zoning differ from regular zoning? If an entity is at position (25, 35) with zone size 10x10 and has an AoI radius of 15, which zones need to be checked?
+</div>
+
+<hr>
+<hr>
+<hr>
+<hr>
+<hr>
+
+<h4>3.2 Micro-Zoning</h4>
+<ul>
+    <li><strong>Concept</strong>: Many small zones (grid/Voronoi cells)</li>
+    <li><strong>Process</strong>:
+        <ul>
+            <li>Entities managed in their micro-zone</li>
+            <li>Check zones intersecting AoI</li>
+            <li>Sequential search within zones</li>
+        </ul>
+    </li>
+</ul>
+
+<div class="example">
+<strong>Grid-based Example:</strong>
+<pre>
+Zone size: 10x10 units
+Entity at (25, 35) → Zone (2,3)
+AoI radius 15 → Check zones (1-3, 2-4)
+</pre>
+</div>
+
+<hr>
+<hr>
+<hr>
+<hr>
+<hr>
+
+<div class="question">
+What is the three-step process in spatial publish-subscribe? What are the main advantages and disadvantages of this approach?
+</div>
+
+<hr>
+<hr>
+<hr>
+<hr>
+<hr>
+
+<h4>3.3 Spatial Publish-Subscribe</h4>
+<ul>
+    <li><strong>Concept</strong>: Combine micro-zoning with pub/sub</li>
+    <li><strong>Process</strong>:
+        <ol>
+            <li>Entities publish to their zone</li>
+            <li>Subscribe to zones in AoI</li>
+            <li>Receive updates on zone changes</li>
+        </ol>
+    </li>
+</ul>
+
+<p><strong>Advantages:</strong></p>
+<ul>
+    <li>Efficient proximity detection</li>
+    <li>Active change notification</li>
+    <li>No polling needed</li>
+</ul>
+
+<p><strong>Disadvantages:</strong></p>
+<ul>
+    <li>Zone size trade-offs</li>
+    <li>Border fluctuations</li>
+    <li>High change rates = overhead</li>
+</ul>
+
+<hr>
+<hr>
+<hr>
+<hr>
+<hr>
+
+<div class="question">
+What are the three main types of index structures used for spatial management? How do they differ in their approach to space partitioning?
+</div>
+
+<hr>
+<hr>
+<hr>
+<hr>
+<hr>
+
+<h3>4. Index Structures</h3>
+
+<hr>
+<hr>
+<hr>
+<hr>
+<hr>
+
+<div class="question">
+What is a kD-Tree and how does it alternate split dimensions? What are the maximum and minimum capacity requirements for nodes, and what are the pros and cons of bulk loading?
+</div>
+
+<hr>
+<hr>
+<hr>
+<hr>
+<hr>
+
+<h4>4.1 Binary Space Partitioning (BSP) Trees</h4>
+
+<p><strong>kD-Tree (most common BSP):</strong></p>
+<ul>
+    <li>Binary tree with axis-aligned splits</li>
+    <li>Alternates split dimension at each level</li>
+    <li>Leaf nodes contain objects</li>
+</ul>
+
+<p><strong>Properties:</strong></p>
+<ul>
+    <li>Max capacity: M entries</li>
+    <li>Min capacity: M/2 entries</li>
+    <li>Split on overflow (50-50 distribution)</li>
+</ul>
+
+<div class="algorithm">
+<strong>Bulk Loading Algorithm:</strong>
+<pre><code>def bulk_load_kd_tree(points, M):
+    if len(points) <= M:
+        return LeafNode(points)
+    
+    # Alternate dimensions
+    dim = depth % num_dimensions
+    
+    # Sort and split at median
+    points.sort(key=lambda p: p[dim])
+    mid = len(points) // 2
+    
+    left = bulk_load_kd_tree(points[:mid], M)
+    right = bulk_load_kd_tree(points[mid:], M)
+    
+    return InnerNode(left, right, split_value)
+</code></pre>
+</div>
+
+<p><strong>Pros:</strong></p>
+<ul>
+    <li>Balanced tree from bulk load</li>
+    <li>Guaranteed bounds: $\frac{n}{2^h}$ to $\frac{n}{2^{h+1}}$ objects per node</li>
+</ul>
+
+<p><strong>Cons:</strong></p>
+<ul>
+    <li>No dynamic balancing</li>
+    <li>Can degenerate with updates</li>
+</ul>
+
+<hr>
+<hr>
+<hr>
+<hr>
+<hr>
+
+<div class="question">
+How many children does each node in a Quad-Tree have? What are the key differences between Quad-Trees and kD-Trees in terms of structure and balance?
+</div>
+
+<hr>
+<hr>
+<hr>
+<hr>
+<hr>
+
+<h4>4.2 Quad-Trees</h4>
+<ul>
+    <li>Each node has 4 children</li>
+    <li>Space divided into equal quadrants</li>
+    <li>No minimum fill requirement</li>
+</ul>
+
+<p><strong>Structure:</strong></p>
+<pre>
+         Root
+    /    |    |    \
+  NW    NE    SW    SE
+</pre>
+
+<p><strong>Properties:</strong></p>
+<ul>
+    <li>Not necessarily balanced</li>
+    <li>Simple spatial subdivision</li>
+    <li>Good for uniform distributions</li>
+</ul>
+
+<hr>
+<hr>
+<hr>
+<hr>
+<hr>
+
+<div class="question">
+What are MBRs in R-Trees and can they overlap? How does the insertion algorithm choose which subtree to insert into, and what is the quadratic split algorithm based on?
+</div>
+
+<hr>
+<hr>
+<hr>
+<hr>
+<hr>
+
+<h4>4.3 R-Trees</h4>
+
+<p><strong>Structure:</strong></p>
+<ul>
+    <li>Balanced tree (all leaves at same height)</li>
+    <li>Nodes have m to M children ($m \leq M/2$)</li>
+    <li>Page regions are Minimum Bounding Rectangles (MBRs)</li>
+    <li>MBRs may overlap</li>
+</ul>
+
+<div class="algorithm">
+<strong>Insertion Algorithm:</strong>
+<pre><code>def insert(node, object):
+    if node.is_leaf():
+        node.add(object)
+        if node.overflow():
+            split(node)
+    else:
+        # Choose subtree
+        best_child = None
+        if object in multiple MBRs:
+            best_child = smallest_area_child
+        elif object not in any MBR:
+            best_child = min_area_increase_child
+        else:
+            best_child = containing_child
+        
+        insert(best_child, object)
+        adjust_mbr(node)
+</code></pre>
+</div>
+
+<p><strong>Split Algorithm (Quadratic):</strong></p>
+<ol>
+    <li>Find pair (R1,R2) with maximum dead space
+        $$d(R1,R2) = \text{area}(MBR(R1 \cup R2)) - \text{area}(R1) - \text{area}(R2)$$
+    </li>
+    <li>Assign remaining objects to minimize area increase</li>
+</ol>
+
+<p><strong>Linear Split (O(n)):</strong></p>
+<ul>
+    <li>Find pair with maximum normalized distance</li>
+    <li>Faster but potentially worse quality</li>
+</ul>
+
+<div class="algorithm">
+<strong>Sort-Tile-Recursive Bulk Load:</strong>
+<pre><code>def sort_tile_recursive(objects, M):
+    q = ceil(sqrt(len(objects)/M))
+    
+    # Sort by dimension 1
+    objects.sort(key=lambda o: o.x)
+    
+    # Create q slices
+    for i in range(q):
+        slice = objects[i*q*M:(i+1)*q*M]
+        # Sort slice by dimension 2
+        slice.sort(key=lambda o: o.y)
+        
+        # Create M-sized pages
+        for j in range(0, len(slice), M):
+            create_page(slice[j:j+M])
+</code></pre>
+</div>
+
+<hr>
+<hr>
+<hr>
+<hr>
+<hr>
+
+<div class="question">
+What are the two main search algorithms for spatial queries? How does the nearest neighbor query use a priority queue differently from the range query?
+</div>
+
+<hr>
+<hr>
+<hr>
+<hr>
+<hr>
+
+<h3>5. Search Algorithms</h3>
+
+<h4>5.1 Range Query</h4>
+<div class="algorithm">
+<pre><code>def range_query(root, q, epsilon):
+    candidates = [root]
+    results = []
+    
+    while candidates:
+        node = candidates.pop()
+        if node.is_mbr():
+            for child in node.children:
+                if min_dist(child, q) <= epsilon:
+                    candidates.append(child)
+        else:  # Leaf/object
+            results.append(node)
+    
+    return results
+</code></pre>
+</div>
+
+<h4>5.2 Nearest Neighbor Query</h4>
+<div class="algorithm">
+<pre><code>def nn_query(root, q):
+    # Priority queue ordered by min distance
+    pq = PriorityQueue()
+    pq.insert(0, root)
+    
+    while not pq.empty():
+        dist, node = pq.pop()
+        if node.is_object():
+            return node  # First object is nearest
+        else:
+            for child in node.children:
+                pq.insert(min_dist(child, q), child)
+</code></pre>
+</div>
+
+<hr>
+<hr>
+<hr>
+<hr>
+<hr>
+
+<div class="question">
+What is a spatial join and how does it compute all AoIs in a single operation? How does the R-Tree join algorithm work recursively?
+</div>
+
+<hr>
+<hr>
+<hr>
+<hr>
+<hr>
+
+<h3>6. Spatial Joins</h3>
+
+<p><strong>ε-Range Join Definition:</strong></p>
+$$S \bowtie_\varepsilon G = \{(g,s) \in G \times S \mid \text{dist}(g,s) \leq \varepsilon\}$$
+
+<p>Computes all AoIs in single operation.</p>
+
+<div class="algorithm">
+<strong>R-Tree Join Algorithm:</strong>
+<pre><code>def r_tree_join(R, S, epsilon):
+    results = []
+    
+    if R.is_leaf() and S.is_leaf():
+        for r in R.objects:
+            for s in S.objects:
+                if dist(r, s) <= epsilon:
+                    results.append((r, s))
+    else:
+        for r_child in R.children:
+            for s_child in S.children:
+                if min_dist(r_child, s_child) <= epsilon:
+                    results.extend(
+                        r_tree_join(r_child, s_child, epsilon)
+                    )
+    
+    return results
+</code></pre>
+</div>
+
+<hr>
+<hr>
+<hr>
+<hr>
+<hr>
+
+<div class="question">
+Why do traditional index structures struggle with high volatility in games? What is the throw-away indices solution and what is the decision criteria for using an index?
+</div>
+
+<hr>
+<hr>
+<hr>
+<hr>
+<hr>
+
+<h3>7. Handling High Volatility</h3>
+
+<h4>Problem:</h4>
+<ul>
+    <li>Game objects move frequently (every tick)</li>
+    <li>Traditional index updates are expensive</li>
+    <li>Structures can degenerate</li>
+</ul>
+
+<h4>Solution: Throw-Away Indices</h4>
+<ol>
+    <li>Maintain two indices: I₁ (active), I₂ (building)</li>
+    <li>Use I₁ for queries while building I₂</li>
+    <li>Swap indices each tick</li>
+    <li>Rebuild via bulk-load (fast, good structure)</li>
+</ol>
+
+<p><strong>Decision Criteria:</strong></p>
+<pre>
+Use index if: 
+  Time(bulk_load) + Time(index_queries) < Time(brute_force_queries)
+</pre>
+
+<hr>
+<hr>
+<hr>
+<hr>
+<hr>
+
+<div class="question">
+What are the main trade-offs in spatial management performance? What are four optimization strategies and how do game design decisions impact spatial management?
+</div>
+
+<hr>
+<hr>
+<hr>
+<hr>
+<hr>
+
+<h3>8. Performance Considerations</h3>
+
+<h4>Trade-offs:</h4>
+<ul>
+    <li><strong>Update frequency</strong> vs <strong>Query performance</strong></li>
+    <li><strong>Index quality</strong> vs <strong>Build time</strong></li>
+    <li><strong>Memory usage</strong> vs <strong>Speed</strong></li>
+</ul>
+
+<h4>Optimization Strategies:</h4>
+<ol>
+    <li><strong>Reduce queries</strong>: Lower tick rates for some checks</li>
+    <li><strong>Spatial publish-subscribe</strong>: Avoid repeated queries</li>
+    <li><strong>Hierarchical approaches</strong>: Coarse then fine checks</li>
+    <li><strong>Parallel processing</strong>: Spatial joins for batch operations</li>
+</ol>
+
+<h4>Game Design Impact:</h4>
+<ul>
+    <li>Object count and distribution</li>
+    <li>Player distribution patterns</li>
+    <li>Environment type (2D/3D)</li>
+    <li>Movement patterns and speeds</li>
+</ul>
+
+<hr>
+<hr>
+<hr>
+<hr>
+<hr>
+
+<div class="question">
+What four key factors determine the choice of spatial management technique? What is the key principle regarding update/build time and query processing?
+</div>
+
+<hr>
+<hr>
+<hr>
+<hr>
+<hr>
+
+<h3>Summary</h3>
+
+<p>Efficient spatial management is crucial for game scalability. The choice of technique depends on:</p>
+<ul>
+    <li><strong>Static vs Dynamic</strong>: How often do objects move?</li>
+    <li><strong>Distribution</strong>: Uniform or clustered?</li>
+    <li><strong>Query patterns</strong>: What queries are most frequent?</li>
+    <li><strong>Performance requirements</strong>: Real-time constraints?</li>
+</ul>
+
+<p><strong>Key principle:</strong> Update/build time must be compensated by query processing speedups. For highly dynamic games, throw-away indices with bulk loading often outperform traditional dynamic structures.</p>
+
+</body>
+</html>

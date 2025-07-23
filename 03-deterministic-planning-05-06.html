@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI for Games - Agents and Deterministic Planning</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.min.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #1a73e8;
+            border-bottom: 3px solid #1a73e8;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #1967d2;
+            margin-top: 40px;
+        }
+        h3 {
+            color: #174ea6;
+            margin-top: 30px;
+        }
+        .toc {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 30px;
+        }
+        .toc h2 {
+            margin-top: 0;
+            color: #333;
+        }
+        .toc a {
+            text-decoration: none;
+            color: #1a73e8;
+        }
+        .toc a:hover {
+            text-decoration: underline;
+        }
+        pre {
+            background-color: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border: 1px solid #ddd;
+        }
+        code {
+            background-color: #f5f5f5;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        .question-block {
+            background-color: #e8f0fe;
+            border-left: 4px solid #1a73e8;
+            padding: 15px;
+            margin: 30px 0;
+            border-radius: 0 5px 5px 0;
+        }
+        .question-block p {
+            margin: 5px 0;
+        }
+        ul, ol {
+            margin-left: 20px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        .algorithm {
+            background-color: #f8f9fa;
+            border: 1px solid #dadce0;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .algorithm-title {
+            font-weight: bold;
+            color: #174ea6;
+            margin-bottom: 10px;
+        }
+        strong {
+            color: #333;
+        }
+        .example {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .example-title {
+            font-weight: bold;
+            color: #856404;
+            margin-bottom: 10px;
+        }
+        .formula-box {
+            background-color: #f0f7ff;
+            border: 1px solid #1a73e8;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .component-list {
+            background-color: #f8f9fa;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Artificial Intelligence for Games</h1>
+        <p><strong>Summer Semester 2025</strong></p>
+        
+        <div class="toc">
+            <h2>Table of Contents</h2>
+            <ol>
+                <li><a href="#1-agents">Agents</a></li>
+                <li><a href="#2-deterministic-planning">Deterministic Planning</a></li>
+            </ol>
+        </div>
+
+        <hr>
+
+        <h1 id="1-agents">1. Agents</h1>
+
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+
+        <div class="question-block">
+            <p>What are the two definitions mentioned at the beginning, and what is the key insight about AI in games?</p>
+            <p>What are the four example challenges that agents face in game AI?</p>
+        </div>
+
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+
+        <h3>Core Concepts</h3>
+        <ul>
+            <li><strong>AI Definition</strong>: Making computers act rationally or human-like</li>
+            <li><strong>Game Definition</strong>: An interactive experience</li>
+            <li><strong>Key Insight</strong>: For games, AI is primarily about the actions of Agents</li>
+        </ul>
+
+        <h3>Example Challenges</h3>
+        <ol>
+            <li>What is the best action in a particular state to achieve a goal?</li>
+            <li>How do human players act?</li>
+            <li>Does the player behavior belong to a human or an AI?</li>
+            <li>How does the environment influence player behavior?</li>
+        </ol>
+
+        <h2>1.2 General Agent-Environment Framework</h2>
+
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+
+        <div class="question-block">
+            <p>What are the five main components of the agent-environment framework and how do they interact with each other?</p>
+            <p>What is the difference between the game state and player view?</p>
+        </div>
+
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+
+        <h3>Components</h3>
+        <pre>
+Environment ←→ Agent
+     ↓           ↓
+Game State    Player View
+     ↓           ↓
+   GAME    →  action
+        </pre>
+
+        <p>The framework consists of:</p>
+        <ul>
+            <li><strong>Environment</strong>: Contains the complete game state</li>
+            <li><strong>Agent</strong>: Receives observations and produces actions</li>
+            <li><strong>Game State</strong>: Complete representation of the game world</li>
+            <li><strong>Player View</strong>: What the agent observes (may be partial)</li>
+            <li><strong>Action</strong>: Agent's response to observations</li>
+        </ul>
+
+        <h2>1.3 Formal Mathematical Setting</h2>
+
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+
+        <div class="question-block">
+            <p>What two components make up a discrete time, homogeneous Markov process?</p>
+            <p>How does the transition function change when an agent is integrated into the system?</p>
+            <p>What is an episode and what is a behavior in the context of agent actions?</p>
+        </div>
+
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+
+        <h3>Markov Process Foundation</h3>
+        <p>A game can be described as a discrete time, homogeneous Markov process consisting of:</p>
+        <ul>
+            <li><strong>Set of states</strong>: \(S\)</li>
+            <li><strong>Transition function</strong>: \(T: P(s'|s)\) for all \(s, s' \in S\)</li>
+        </ul>
+
+        <h3>Agent Integration</h3>
+        <p>When considering an agent:</p>
+        <ul>
+            <li>At each step \(t\), the agent can choose an action: <strong>\(a \in A(s_t)\)</strong>
+                <ul>
+                    <li>Where \(A(s_t)\) is the set of all valid actions in state \(s_t\)</li>
+                </ul>
+            </li>
+            <li>New transition function: <strong>\(T(s, a)\)</strong> for all \(s, s' \in S\) and all \(a \in A(s_t)\)</li>
+        </ul>
+
+        <h3>Episode and Behavior</h3>
+        <ul>
+            <li><strong>Episode</strong>: \(s_1, a_1, s_2, a_2, \ldots, s_t, a_t, s_{t+1}\)</li>
+            <li><strong>Behavior</strong>: \(a_1, a_2, \ldots, a_t\)</li>
+        </ul>
+
+        <h2>1.4 Policies and Agents</h2>
+
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+
+        <div class="question-block">
+            <p>What is the difference between a deterministic and stochastic policy?</p>
+            <p>What three factors do agent policies depend on?</p>
+        </div>
+
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+
+        <h3>Policy Definition</h3>
+        <p>A policy \(\pi\) is a mapping between states \(S\) and actions \(A\):</p>
+        <ul>
+            <li><strong>Deterministic policy</strong>: \(\pi(s) = a\), where \(s \in S\) and \(a \in A(s)\)</li>
+            <li><strong>Stochastic policy</strong>: \(\pi(s, a) = P(a|s)\)
+                <ul>
+                    <li>\(\pi(s, a)\) is the likelihood of taking action \(a\) in state \(s\)</li>
+                </ul>
+            </li>
+        </ul>
+
+        <h3>Policy Dependencies</h3>
+        <p>Agent policies depend on:</p>
+        <ol>
+            <li>The environment they are acting in</li>
+            <li>The purpose of the agent</li>
+            <li>The type of policy function used</li>
+        </ol>
+
+        <h2>1.5 Environment Properties</h2>
+
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+
+        <div class="question-block">
+            <p>What distinguishes a fully observable setting from a partially observable setting?</p>
+            <p>What is the key difference between deterministic and non-deterministic transitions?</p>
+            <p>What are the eight additional properties that characterize environments beyond observability and determinism?</p>
+        </div>
+
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+
+        <h3>Observability</h3>
+        <ol>
+            <li><strong>Fully Observable Setting</strong>:
+                <ul>
+                    <li>Agent gets information of the complete Game State</li>
+                    <li>The game state is usually Markov</li>
+                    <li>Example: Go (all pieces visible on board)</li>
+                </ul>
+            </li>
+            <li><strong>Partially Observable Setting</strong>:
+                <ul>
+                    <li>Agent sees only parts of the game state</li>
+                    <li>Not all relevant information may be known</li>
+                    <li>Decisions might run on an abstraction of the true game state</li>
+                    <li>Example: StarCraft II (fog of war, opponent's resources hidden)</li>
+                </ul>
+            </li>
+        </ol>
+
+        <h3>Determinism</h3>
+        <ol>
+            <li><strong>Deterministic Transitions</strong>: \(t(s, a) \rightarrow s'\)
+                <ul>
+                    <li>Same action in same state always has same result</li>
+                    <li>Examples: Sliding puzzles, riddles</li>
+                </ul>
+            </li>
+            <li><strong>Non-Deterministic Transitions</strong>: \(T: P(s'|s, a)\)
+                <ul>
+                    <li>Same action in same state might lead to different results</li>
+                    <li>Most games contain non-determinism to maintain challenge</li>
+                    <li>Examples: Chess (opponent moves), Poker (cards), Hearthstone (RNG)</li>
+                </ul>
+            </li>
+        </ol>
+
+        <h3>Additional Properties</h3>
+        <ul>
+            <li><strong>Static vs. Dynamic Environments</strong>:
+                <ul>
+                    <li>Static: Environment only changes through player actions</li>
+                    <li>Dynamic: Environment changes without player action (real-time games)</li>
+                </ul>
+            </li>
+            <li><strong>Finite vs. Infinite Horizon</strong>:
+                <ul>
+                    <li>Finite: Process ends after certain number of steps</li>
+                    <li>Infinite: Continues until goal state reached or indefinitely</li>
+                </ul>
+            </li>
+            <li><strong>Discrete vs. Continuous</strong>: State and action spaces</li>
+            <li><strong>Number of Agents</strong>: Single or multi-agent</li>
+            <li><strong>Agent Attitudes</strong>: Collaborative or antagonistic</li>
+            <li><strong>Model Knowledge</strong>: Known rules vs. unknown rules</li>
+        </ul>
+
+        <h2>1.6 Agent Goals</h2>
+
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+
+        <div class="question-block">
+            <p>What are the four different types of policy goals that agents can have?</p>
+        </div>
+
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+
+        <h3>Types of Policy Goals</h3>
+        <ol>
+            <li><strong>Provide game design element</strong>
+                <ul>
+                    <li>Examples: Monsters, creeps, NPCs</li>
+                </ul>
+            </li>
+            <li><strong>Act human-like</strong>
+                <ul>
+                    <li>Mimic average player (farming bots)</li>
+                    <li>Master the game like a human (computer opponents)</li>
+                </ul>
+            </li>
+            <li><strong>Maximize reward function</strong>
+                <ul>
+                    <li>Examples: Winning, collecting points</li>
+                </ul>
+            </li>
+            <li><strong>Minimize cost function</strong>
+                <ul>
+                    <li>Examples: Minimize time, resources used</li>
+                </ul>
+            </li>
+        </ol>
+
+        <h2>1.7 Types of Policy Functions</h2>
+
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+
+        <div class="question-block">
+            <p>What are the main characteristics of reflex agents and what format do their rules follow?</p>
+            <p>What are the seven rules of the "Autocamp 2000" Bot example and what is the exception rule?</p>
+        </div>
+
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+
+        <h3>Reflex Agents</h3>
+        <p><strong>Characteristics</strong>:</p>
+        <ul>
+            <li>Provides set of rules tested in particular order</li>
+            <li>Format: condition(s) → action</li>
+            <li>Represent known policies but don't optimize</li>
+            <li>Rules can be organized in hierarchy/tree</li>
+            <li>Very efficient for appropriate state/action spaces</li>
+            <li>Most PvE games use reflex agents</li>
+        </ul>
+
+        <div class="example">
+            <div class="example-title">Example: "Autocamp 2000" Bot</div>
+            <pre>
+Rules:
+1. If invited by group → join group
+2. If in group → follow leader
+3. If sees monster → attack
+4. If message ends with "?" → respond "Dude?"
+5. If message ends with "!" → respond "Dude!"
+6. If message ends with "." → respond randomly: "Okie", "Sure", or "Right on"
+7. EXCEPTION: If addressed by name → respond "Lag."
+            </pre>
+        </div>
+
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+
+        <div class="question-block">
+            <p>How do model-based reflex agents differ from regular reflex agents?</p>
+            <p>What strategy does the example agent use when pursuing a moving object?</p>
+        </div>
+
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+
+        <h3>Model-Based Reflex Agents</h3>
+        <p><strong>Key Features</strong>:</p>
+        <ul>
+            <li>Maintain internal state from observation sequence</li>
+            <li>Necessary for partially observable settings</li>
+            <li>Rules applied based on internal state</li>
+        </ul>
+
+        <div class="example">
+            <div class="example-title">Example: Agent pursuing moving object</div>
+            <ul>
+                <li>If object visible → move to object</li>
+                <li>If object invisible → go to last known position</li>
+            </ul>
+        </div>
+
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+
+        <div class="question-block">
+            <p>What do goal-based agents require to function and what are their two main optimization approaches?</p>
+            <p>Why is planning ahead considered crucial for intelligence?</p>
+        </div>
+
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+
+        <h3>Goal-Based Agents</h3>
+        <p><strong>Characteristics</strong>:</p>
+        <ul>
+            <li>Require reward/cost function to optimize</li>
+            <li>Simple immediate optimization: Take highest reward action</li>
+            <li>Sequential planning: Find action sequence maximizing total reward</li>
+            <li>Planning ahead is crucial for intelligence</li>
+        </ul>
+
+        <div class="example">
+            <div class="example-title">Example</div>
+            <p>Invest today to earn tomorrow</p>
+        </div>
+
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+
+        <div class="question-block">
+            <p>What is the γ parameter in utility-based agents and how does its value affect decision making?</p>
+            <p>What are the two main requirements for utility-based agents to work effectively?</p>
+        </div>
+
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+
+        <h3>Utility-Based Agents (Markov Decision Processes)</h3>
+        <p><strong>Key Concepts</strong>:</p>
+        <ul>
+            <li>Handle non-deterministic settings where future rewards are uncertain</li>
+            <li>Utility/value functions describe cumulated expected reward</li>
+            <li>Depend on \(\gamma\) parameter (discount factor):
+                <ul>
+                    <li>\(\gamma = 1\): All rewards count equally</li>
+                    <li>\(\gamma < 1\): Immediate rewards preferred</li>
+                </ul>
+            </li>
+            <li>Greedily choose action maximizing utility</li>
+        </ul>
+
+        <p><strong>Requirements</strong>:</p>
+        <ul>
+            <li>Known transition function</li>
+            <li>Reasonably small state/action spaces</li>
+        </ul>
+
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+
+        <div class="question-block">
+            <p>What do learning agents approximate and what are their key advantages over utility-based agents?</p>
+        </div>
+
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+
+        <h3>Learning Agents (Reinforcement Learning)</h3>
+        <p><strong>Features</strong>:</p>
+        <ul>
+            <li>Approximate utility function from observed episodes</li>
+            <li>Sometimes learn policy directly without utility approximation</li>
+            <li>Can abstract and transfer policies between similar settings</li>
+            <li>Handle unknown transition functions</li>
+            <li>Work with large state/action spaces</li>
+        </ul>
+
+        <h2>1.8 Termination and Proper Policies</h2>
+
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+
+        <div class="question-block">
+            <p>What is the definition of a proper policy?</p>
+            <p>How do the requirements for proper policies differ between cost-based and reward-based settings?</p>
+        </div>
+
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+
+        <h3>Termination Guarantees</h3>
+        <ul>
+            <li><strong>Finite horizon</strong>: Termination guaranteed</li>
+            <li><strong>Infinite horizon</strong>: Not all policies terminate</li>
+        </ul>
+
+        <h3>Proper Policy</h3>
+        <p>Definition: A policy that reaches a terminal state</p>
+
+        <p><strong>For Cost-Based Settings</strong>:</p>
+        <ul>
+            <li>Optimal policies must be proper</li>
+            <li>Only proper policies have finite cost</li>
+        </ul>
+
+        <p><strong>For Reward-Based Settings</strong>:</p>
+        <ul>
+            <li>\(\gamma = 1\): \(\sum_{i=1}^{\infty} \gamma^i r_i \rightarrow \infty\), policies might not terminate</li>
+            <li>\(\gamma < 1\): \(\sum_{i=1}^{\infty} \gamma^i r_i \rightarrow C\), can force termination with reward \(> C\) at terminal states</li>
+        </ul>
+
+        <hr>
+
+        <h1 id="2-deterministic-planning">2. Deterministic Planning</h1>
+
+        <h2>2.1 Introduction to Deterministic Planning</h2>
+
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+
+        <div class="question-block">
+            <p>Why are few purely deterministic games interesting, and what are deterministic planning methods useful for instead?</p>
+        </div>
+
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+
+        <h3>When to Use Deterministic Planning</h3>
+        <ul>
+            <li>Few purely deterministic games are interesting</li>
+            <li>Useful for solving AI subtasks:
+                <ul>
+                    <li>Finding exits in buildings</li>
+                    <li>Routing to targets</li>
+                </ul>
+            </li>
+            <li>Approximating non-deterministic problems
+                <ul>
+                    <li>Example: Assume opponent uses identical policy in Go/Chess</li>
+                </ul>
+            </li>
+        </ul>
+
+        <h2>2.2 Formal Framework</h2>
+
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+
+        <div class="question-block">
+            <p>What assumptions are made about the environment in deterministic planning?</p>
+            <p>What is the formula for cumulated reward/cost and how does the γ parameter affect it?</p>
+            <p>What are the two possible termination conditions for an episode?</p>
+        </div>
+
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+
+        <h3>Assumptions</h3>
+        <p>Static and fully-observable environments</p>
+
+        <h3>Components</h3>
+        <ul>
+            <li><strong>States</strong>: \(S = \{s_1, \ldots, s_n\}\)</li>
+            <li><strong>Actions</strong>: \(A(s)\) for each state \(s \in S\)</li>
+            <li><strong>Reward function</strong>: \(R: R(s)\) (negative = cost function)</li>
+            <li><strong>Transition function</strong>: \(T: S \times A \rightarrow S: t(s, a) = s'\)</li>
+            <li><strong>Goal</strong>: Maximize cumulated rewards (minimize cost)</li>
+        </ul>
+
+        <h3>Cumulated Reward/Cost</h3>
+        <div class="formula-box">
+            <p><strong>Formula</strong>: \(\sum_{i=1}^{l} \gamma^i r_i\) with \(0 < \gamma \leq 1\)</p>
+            <ul style="list-style: none; text-align: left; display: inline-block;">
+                <li>\(\gamma = 1\): All rewards count equally</li>
+                <li>\(\gamma < 1\): Early rewards count more</li>
+            </ul>
+        </div>
+
+        <h3>Episode Structure</h3>
+        <p>\(s_1, a_1, r_1, s_2, a_2, r_2, s_3, a_3, r_3, \ldots, s_l, a_l, r_l, s_{l+1}\)</p>
+
+        <h3>Termination Conditions</h3>
+        <ol>
+            <li>Reaching terminal state (infinite horizon)</li>
+            <li>Process ends after \(k\) steps (finite horizon)</li>
+        </ol>
+
+        <h2>2.3 Search Trees and Graphs</h2>
+
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+
+        <div class="question-block">
+            <p>How do the nodes, edges, and weights correspond to the planning problem components in a graph structure?</p>
+            <p>Why might nodes appear multiple times in a search tree and when can a tree be infinite even for finite graphs?</p>
+            <p>What are the states, actions, and costs in the Gridworld example?</p>
+        </div>
+
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+
+        <h3>Graph Structure</h3>
+        <ul>
+            <li><strong>Nodes</strong>: States \(S\)</li>
+            <li><strong>Edges</strong>: Transitions \(t(s, a)\)</li>
+            <li><strong>Weights</strong>: Rewards/costs on nodes or edges</li>
+        </ul>
+
+        <h3>Search Tree Properties</h3>
+        <ul>
+            <li>All possible episodes from start state form search tree</li>
+            <li>Nodes may appear multiple times with different cumulated costs</li>
+            <li>Tree may be infinite even for finite graphs:
+                <ul>
+                    <li>Finite horizon: All paths same length</li>
+                    <li>Infinite horizon with terminals: Infinite paths possible</li>
+                </ul>
+            </li>
+        </ul>
+
+        <div class="example">
+            <div class="example-title">Example: Gridworld</div>
+            <pre>
+Grid Layout:
+[start] [ ] [ ] [goal]
+[  ]    [X] [ ] [  ]
+[  ]    [ ] [X] [  ]
+[  ]    [ ] [ ] [  ]
+            </pre>
+            <ul>
+                <li>States: Grid positions (x,y)</li>
+                <li>Actions: Up, Down, Left, Right</li>
+                <li>Obstacles: Block certain positions</li>
+                <li>Cost: 1 per action OR reward at goal</li>
+            </ul>
+        </div>
+
+        <h2>2.4 Search Algorithms</h2>
+
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+
+        <div class="question-block">
+            <p>What does BFS explore paths by and what is its memory complexity?</p>
+            <p>Why does BFS find the shortest path in steps but not necessarily the minimal cost path?</p>
+        </div>
+
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+
+        <h3>Breadth-First Search (BFS)</h3>
+
+        <p><strong>Characteristics</strong>:</p>
+        <ul>
+            <li>Explores paths by length (number of steps)</li>
+            <li>Finds shortest path in steps (not necessarily minimal cost)</li>
+            <li>Memory: \(O(m)\) where \(m\) = number of unterminated paths</li>
+            <li>\(m\) grows exponentially: \(b \rightarrow b^2 \rightarrow b^3 \rightarrow \ldots \rightarrow b^d\)</li>
+            <li>Complete: Will find optimal solution eventually</li>
+        </ul>
+
+        <div class="algorithm">
+            <div class="algorithm-title">Pseudocode</div>
+            <pre>
+FUNCTION path BFS(State start, State[] terminals)
+    Q = List()
+    Q.insert(new path(start))
+    WHILE(Q.notIsEmpty())
+        path aktTraj = Q.getFirst()
+        IF aktTraj.last() in terminals THEN
+            return aktTraj
+        ELSE
+            FOR State n in aktTraj.last().transitions() DO
+                path newTraj = aktTraj.extend(n)
+                Q.addLast(newTraj)
+            ENDDO
+        ENDIF
+    ENDWHILE
+    RETURN NULL
+ENDFUNCTION
+            </pre>
+        </div>
+
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+
+        <div class="question-block">
+            <p>What type of data structure does Uniform Cost Search use and what ordering?</p>
+            <p>What requirement must costs satisfy for Uniform Cost Search to guarantee finding the minimal cost path?</p>
+        </div>
+
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+
+        <h3>Uniform Cost Search (Dijkstra's Algorithm)</h3>
+
+        <p><strong>Key Features</strong>:</p>
+        <ul>
+            <li>Extends minimal cost path each step</li>
+            <li>Uses priority queue (ascending cost order)</li>
+            <li>Requires monotonically increasing costs</li>
+            <li>Guarantees minimal cost for first terminal path found</li>
+        </ul>
+
+        <div class="algorithm">
+            <div class="algorithm-title">Pseudocode</div>
+            <pre>
+FUNCTION path uniformCostSearch(State start, State[] terminals)
+    Q = new PriorityQueue(ascending)
+    Q.insert(new path(start), 0)
+    WHILE(Q.notIsEmpty())
+        path aktTraj = Q.getFirst()
+        IF aktTraj.last() in terminals THEN
+            return aktTraj
+        ELSE
+            FOR State n in aktTraj.last().transitions() DO
+                path newTraj = aktTraj.extend(n)
+                Q.insert(newTraj, newTraj.cost)
+            ENDDO
+        ENDIF
+    ENDWHILE
+    RETURN NULL
+ENDFUNCTION
+            </pre>
+        </div>
+
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+
+        <div class="question-block">
+            <p>What is the memory complexity of DFS and why can't it guarantee termination in certain settings?</p>
+            <p>What is the key difference in the pseudocode between DFS and BFS?</p>
+        </div>
+
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+
+        <h3>Depth-First Search (DFS)</h3>
+
+        <p><strong>Characteristics</strong>:</p>
+        <ul>
+            <li>Extends one path until termination</li>
+            <li>Memory: \(O(d \cdot b)\) where \(d\) = current path length</li>
+            <li>Cannot guarantee termination in infinite horizon settings</li>
+        </ul>
+
+        <div class="algorithm">
+            <div class="algorithm-title">Pseudocode</div>
+            <pre>
+FUNCTION path DFS(State start, State[] terminals)
+    Q = List()
+    Q.insert(new path(start))
+    WHILE(Q.notIsEmpty())
+        path aktTraj = Q.getFirst()
+        IF aktTraj.last() in terminals THEN
+            return aktTraj
+        ELSE
+            FOR State n in aktTraj.last().transitions() DO
+                path newTraj = aktTraj.extend(n)
+                Q.addFirst(newTraj)  # Note: addFirst for DFS
+            ENDDO
+        ENDIF
+    ENDWHILE
+    RETURN NULL
+ENDFUNCTION
+            </pre>
+        </div>
+
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+
+        <div class="question-block">
+            <p>What is the main limitation of Depth-Limited Search and how does Iterative Deepening address it?</p>
+            <p>What is the trade-off when using Iterative Deepening?</p>
+        </div>
+
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+
+        <h3>Depth-Limited Search & Iterative Deepening</h3>
+
+        <p><strong>Depth-Limited Search (DLS)</strong>:</p>
+        <ul>
+            <li>Terminates paths at limit \(l\)</li>
+            <li>Finds optimal if path length ≤ \(l\)</li>
+            <li>May find suboptimal or no solution if optimal > \(l\)</li>
+        </ul>
+
+        <p><strong>Iterative Deepening</strong>:</p>
+        <ul>
+            <li>Run multiple DLS with increasing \(l\)</li>
+            <li>Guarantees finding solution</li>
+            <li>Approximately doubles search time</li>
+        </ul>
+
+        <h2>2.5 Informed Search: A* Algorithm</h2>
+
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+
+        <div class="question-block">
+            <p>What property must a heuristic function have to be considered optimistic/lower-bounding?</p>
+            <p>What is the lower bound formula for a path and when can we stop extending a path in A*?</p>
+        </div>
+
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+
+        <h3>Core Concepts</h3>
+        <p><strong>Heuristic Function</strong>: \(h(s, s')\) estimates optimal cost from \(s\) to \(s'\)</p>
+        <ul>
+            <li><strong>Optimistic/Lower-bounding</strong>: \(h(s, s') \leq \text{opt}(s, s')\)</li>
+            <li><strong>Lower bound formula</strong>: \(LB(p) = \text{cost}(p) + \min_{s' \in \text{Terminal}} h(s, s')\)</li>
+        </ul>
+
+        <h3>A* Properties</h3>
+        <ul>
+            <li>Requires monotonically increasing costs</li>
+            <li>If solution \(p'\) found with \(\text{cost}(p') < LB(p)\), no need to extend \(p\)</li>
+            <li>Guarantees optimal solution</li>
+        </ul>
+
+        <div class="algorithm">
+            <div class="algorithm-title">Pseudocode</div>
+            <pre>
+FUNCTION path astarSearch(State start, State[] terminals)
+    Q = new PriorityQueue(ascending)
+    Q.insert(new path(start), 0)
+    WHILE(Q.notIsEmpty())
+        path aktTraj = Q.getFirst()
+        IF aktTraj.last() in terminals THEN
+            return aktTraj
+        ELSE
+            FOR State n in aktTraj.last().transitions() DO
+                path newTraj = aktTraj.extend(n)
+                f_value = newTraj.cost + h(newTraj.last(), terminals)
+                Q.insert(newTraj, f_value)
+            ENDDO
+        ENDIF
+    ENDWHILE
+    RETURN NULL
+ENDFUNCTION
+            </pre>
+        </div>
+
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+
+        <div class="question-block">
+            <p>In the road network example, what heuristic is used and why is it admissible?</p>
+        </div>
+
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+
+        <div class="example">
+            <div class="example-title">Example: Shortest Path in Road Network</div>
+            <ul>
+                <li><strong>States</strong>: Road crossings</li>
+                <li><strong>Actions</strong>: Taking outgoing streets</li>
+                <li><strong>Cost</strong>: Distance of road segment</li>
+                <li><strong>Heuristic</strong>: Euclidean distance (straight line)</li>
+                <li><strong>Result</strong>: Dramatically reduces search space</li>
+            </ul>
+        </div>
+
+        <h2>2.6 Classic Example: Goat, Wolf, Cabbage Problem</h2>
+
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+
+        <div class="question-block">
+            <p>What are the constraints in the goat, wolf, cabbage problem?</p>
+            <p>How is the state represented and what makes certain states invalid?</p>
+        </div>
+
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+
+        <h3>Problem Setup</h3>
+        <ul>
+            <li>Transport goat, wolf, and cabbage across river</li>
+            <li>Boat carries you + one item</li>
+            <li>Constraints:
+                <ul>
+                    <li>Wolf alone with goat → wolf eats goat</li>
+                    <li>Goat alone with cabbage → goat eats cabbage</li>
+                </ul>
+            </li>
+        </ul>
+
+        <h3>State Representation</h3>
+        <p>State = (boat, wolf, goat, cabbage) as binary (0=start side, 1=far side)</p>
+        <ul>
+            <li>Invalid states: \(w = g \neq b\), \(g = c \neq b\)</li>
+            <li>Start: (0,0,0,0)</li>
+            <li>Goal: (1,1,1,1)</li>
+        </ul>
+
+        <h3>Solution Approach</h3>
+        <p>Find shortest path in state graph avoiding invalid states</p>
+
+        <h2>2.7 Visibility Graphs for Pathfinding</h2>
+
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+
+        <div class="question-block">
+            <p>What defines the nodes and edges in a visibility graph?</p>
+            <p>What is the optimal complexity for constructing a visibility graph?</p>
+        </div>
+
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+
+        <h3>Problem Setting</h3>
+        <ul>
+            <li>2D continuous space with polygon obstacles</li>
+            <li>Find shortest path between two points</li>
+        </ul>
+
+        <h3>Visibility Graph Construction</h3>
+
+        <p><strong>Definition</strong>: Graph \(G_U(V, E)\) where:</p>
+        <ul>
+            <li><strong>Nodes \(V\)</strong>: All polygon corners</li>
+            <li><strong>Edges \(E\)</strong>: Connections between corners that:
+                <ul>
+                    <li>Don't intersect polygon borders</li>
+                    <li>Connect different polygons</li>
+                    <li>Include convex hull of each polygon</li>
+                </ul>
+            </li>
+        </ul>
+
+        <div class="formula-box">
+            <p>\(V_U = \bigcup_{P \in U} V_P\)</p>
+            <p>\(E_U = \bigcup_{P \in U} E_P \cup \bigcup_{P \in U} \text{Hull}(P) \cup \{(x, y) \mid x \in P_i \land y \in P_j \land i \neq j \land \forall P \in U \forall e \in E_P: (x, y) \cap e = \emptyset\}\)</p>
+        </div>
+
+        <p><strong>Complexity</strong>: \(O(n^2)\) optimal algorithm</p>
+
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+
+        <div class="question-block">
+            <p>How is the challenge of agents having spatial extent addressed in visibility graphs?</p>
+            <p>What are the four trade-offs of using this approach?</p>
+        </div>
+
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+
+        <h3>Handling Extended Objects</h3>
+
+        <p><strong>Challenge</strong>: Agents have spatial extent (not point objects)</p>
+
+        <p><strong>Solution Approach</strong>:</p>
+        <ol>
+            <li>Approximate agent as circle (rotation invariant)</li>
+            <li>Approximate circle as polygon (e.g., hexagon)</li>
+            <li>Expand obstacles by Minkowski sum</li>
+            <li>Build visibility graph on expanded obstacles</li>
+        </ol>
+
+        <p><strong>Trade-offs</strong>:</p>
+        <ul>
+            <li>Paths not optimal</li>
+            <li>Conservative passage handling</li>
+            <li>Angular curves</li>
+            <li>Each agent shape needs separate graph</li>
+        </ul>
+
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+
+        <div class="question-block">
+            <p>What are five alternative abstractions to visibility graphs for pathfinding?</p>
+        </div>
+
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+
+        <h3>Alternative Abstractions</h3>
+        <ol>
+            <li><strong>Polygon simplification</strong>: Reduce corner count</li>
+            <li><strong>Hierarchical routing</strong>: For long distances</li>
+            <li><strong>Pre-calculated paths</strong>: Store common routes</li>
+            <li><strong>Grid-based graphs</strong>: Overlay grid, route through centers</li>
+            <li><strong>Sampled graphs</strong>: For open environments</li>
+        </ol>
+
+        <h2>2.8 Summary of Deterministic Planning</h2>
+
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+
+        <div class="question-block">
+            <p>What are the three key requirements for deterministic planning?</p>
+            <p>How can deterministic planning be applied to environments that don't naturally meet these requirements?</p>
+        </div>
+
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+        <hr>
+
+        <h3>Key Requirements</h3>
+        <ul>
+            <li>Static, discrete, deterministic environment</li>
+            <li>Known transition function</li>
+            <li>Full observability</li>
+        </ul>
+
+        <h3>Limitations & Extensions</h3>
+        <ul>
+            <li>Continuous settings must be discretized</li>
+            <li>Dynamic environments solvable if dynamics known</li>
+            <li>Partial observability leads to non-determinism</li>
+            <li>Can approximate non-deterministic problems</li>
+        </ul>
+
+        <h3>Practical Applications</h3>
+        <ul>
+            <li>Subproblem solving in complex games</li>
+            <li>Approximation for non-deterministic scenarios</li>
+            <li>Foundation for more advanced planning methods</li>
+        </ul>
+
+    </div>
+</body>
+</html>
